@@ -5,3 +5,4 @@
 /web/sites/*/files
 /web/sites/*/settings.local.php
 /web/sites/*/settings.php
+.idea/
