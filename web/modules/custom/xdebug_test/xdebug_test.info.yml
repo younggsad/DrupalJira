@@ -1,0 +1,5 @@
+name: Xdebug Test
+type: module
+description: 'Temporary module for Xdebug testing.'
+package: Custom
+core_version_requirement: ^11
