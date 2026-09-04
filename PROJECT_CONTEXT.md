@@ -372,6 +372,19 @@ Do not mark a task as completed merely because code was written. Verification sh
 
 **Current status:** Task 1.3 is completed.
 
-**Next task:** Determine the requirements for Task 1.4 from the project's task specification before making implementation changes.
+### Task 1.4 — Configuration Management
 
-Do not invent Task 1.4 requirements. Read the relevant specification/task documentation first.
+Status: Completed.
+
+Drupal Core Configuration Management was configured using `config/sync` outside the public files directory.
+
+Completed:
+- Config synchronization directory configured as `config/sync`.
+- Configuration changes exported with `ddev drush cex -y`.
+- Configuration YAML files committed to Git.
+- Configuration import verified on a clean environment with `ddev drush cim -y`.
+- Site name configuration was successfully restored from `config/sync`.
+- `ddev drush config:status` confirmed no differences between active configuration and sync directory.
+- README updated with the configuration export/import workflow.
+
+No third-party configuration management module is used.
