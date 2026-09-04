@@ -1,0 +1,20 @@
+grumphp:
+    git_hook_variables:
+        EXEC_GRUMPHP_COMMAND: 'ddev exec php'
+
+    tasks:
+        phpcs:
+            standard: phpcs.xml.dist
+            triggered_by:
+                - php
+                - module
+                - inc
+                - install
+                - profile
+                - theme
+                - engine
+
+        phpstan:
+            configuration: phpstan.neon.dist
+            triggered_by:
+                - php

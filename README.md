@@ -2,17 +2,17 @@
 
 # DrupalJira
 
-DrupalJira is a Drupal-based training project used to practice Drupal development, local development tooling, debugging, and backend development workflows.
+DrupalJira is a Drupal-based training project used to practice Drupal development, local development tooling, debugging, static analysis, and backend development workflows.
 
 The project uses DDEV to provide a reproducible local Drupal environment.
 
 ## Requirements
 
-- Docker
-- DDEV
-- WSL2
-- VS Code
-- VS Code **PHP Debug** extension
+* Docker
+* DDEV
+* WSL2
+* VS Code
+* VS Code **PHP Debug** extension
 
 ## Local Development
 
@@ -103,7 +103,9 @@ The configuration is:
 ### Start Web Debugging
 
 1. Open the project in VS Code using **Remote-WSL**.
+
 2. Make sure the **PHP Debug** extension is installed in the WSL environment.
+
 3. Enable Xdebug:
 
    ```bash
@@ -111,9 +113,13 @@ The configuration is:
    ```
 
 4. Open **Run and Debug** in VS Code.
+
 5. Select **Listen for Xdebug**.
+
 6. Start the debugger.
+
 7. Set a breakpoint in PHP code.
+
 8. Open the Drupal site in a browser.
 
 For example, a breakpoint can be placed in:
@@ -124,15 +130,15 @@ web/index.php
 
 When the Drupal request reaches the breakpoint, VS Code pauses execution and provides access to:
 
-- Call Stack
-- Variables
-- Watch
-- Debug Console
-- Evaluate expressions
-- Step Over
-- Step Into
-- Step Out
-- Continue
+* Call Stack
+* Variables
+* Watch
+* Debug Console
+* Evaluate expressions
+* Step Over
+* Step Into
+* Step Out
+* Continue
 
 Variables can also be modified while execution is paused.
 
@@ -187,6 +193,163 @@ Expected output:
 Xdebug + Drush works!
 ```
 
+## Static Analysis
+
+The project uses the following tools for static code quality checks:
+
+* PHP_CodeSniffer with Drupal and DrupalPractice standards from `drupal/coder`
+* PHPStan with Drupal integration from `mglaman/phpstan-drupal`
+* GrumPHP to run quality checks before commits
+
+All PHP-based checks must be executed inside the DDEV environment.
+
+### PHPCS
+
+PHP_CodeSniffer checks custom Drupal modules and themes using the Drupal and DrupalPractice coding standards.
+
+Run the check manually:
+
+```bash
+ddev exec vendor/bin/phpcs --standard=phpcs.xml.dist web/modules/custom
+```
+
+The PHPCS configuration is stored in:
+
+```text
+phpcs.xml.dist
+```
+
+The configuration limits analysis to project custom code:
+
+```text
+web/modules/custom
+web/themes/custom
+```
+
+Drupal core and contributed modules/themes are not included in the project coding-standard checks.
+
+### PHPStan
+
+PHPStan performs static analysis of the custom Drupal PHP code.
+
+The project uses PHPStan level `5` together with the Drupal extension.
+
+Run the check manually:
+
+```bash
+ddev exec vendor/bin/phpstan analyse -c phpstan.neon.dist --no-progress
+```
+
+The PHPStan configuration is stored in:
+
+```text
+phpstan.neon.dist
+```
+
+The analysis is limited to:
+
+```text
+web/modules/custom
+```
+
+### GrumPHP
+
+GrumPHP combines PHPCS and PHPStan into a Git pre-commit quality gate.
+
+Run the pre-commit checks manually against staged changes:
+
+```bash
+ddev exec vendor/bin/grumphp git:pre-commit --no-interaction
+```
+
+A successful run should report:
+
+```text
+Running task 1/2: phpcs... ✔
+Running task 2/2: phpstan... ✔
+```
+
+If one of the checks fails, the commit is blocked.
+
+### Git Hooks
+
+GrumPHP installs Git hooks for the project.
+
+The generated hooks execute PHP through DDEV, so PHP does not need to be installed on the WSL host.
+
+The configured command is:
+
+```text
+ddev exec php
+```
+
+If the Git hooks need to be regenerated, run:
+
+```bash
+ddev exec vendor/bin/grumphp git:init
+```
+
+The hooks are stored in:
+
+```text
+.git/hooks/
+```
+
+Git hooks are local Git metadata and are not committed to the repository.
+
+### Manual Quality Checks
+
+To run the individual checks manually:
+
+```bash
+ddev exec vendor/bin/phpcs --standard=phpcs.xml.dist web/modules/custom
+```
+
+```bash
+ddev exec vendor/bin/phpstan analyse -c phpstan.neon.dist --no-progress
+```
+
+To run the GrumPHP pre-commit check:
+
+```bash
+ddev exec vendor/bin/grumphp git:pre-commit --no-interaction
+```
+
+### Bypassing the Pre-Commit Checks
+
+In exceptional cases, Git's verification hooks can be bypassed with:
+
+```bash
+git commit --no-verify
+```
+
+This should only be used when there is a justified reason to bypass the local quality gate.
+
+Using `--no-verify` means that PHPCS and PHPStan will not be used to block the commit locally. The change should still be validated manually, and CI checks may reject code that does not meet the project's quality requirements.
+
+### Reproducibility
+
+The static-analysis tools and their versions are defined in:
+
+```text
+composer.json
+composer.lock
+```
+
+After installing the project dependencies with:
+
+```bash
+ddev composer install
+```
+
+the required PHPCS, PHPStan, GrumPHP, and Drupal coding-standard dependencies are installed from the locked dependency versions.
+
+If the Git hooks need to be initialized or regenerated after installation:
+
+```bash
+ddev exec vendor/bin/grumphp git:init
+```
+
 ## Verify Xdebug Configuration
 
 Check the Xdebug status:
@@ -238,105 +401,3 @@ Expected result:
 ```text
 Connection to 127.0.0.1 9003 port [tcp/*] succeeded!
 ```
-
-## Verify DDEV → VS Code Connectivity
-
-The DDEV container must be able to connect to the debugger:
-
-```bash
-ddev exec bash -c 'timeout 2 bash -c "</dev/tcp/host.docker.internal/9003" && echo "PORT OPEN" || echo "PORT CLOSED"'
-```
-
-Expected result when VS Code is listening:
-
-```text
-PORT OPEN
-```
-
-## Disable Xdebug
-
-Xdebug should normally remain disabled when debugging is not required.
-
-Disable it with:
-
-```bash
-ddev xdebug off
-```
-
-Then verify:
-
-```bash
-ddev xdebug status
-```
-
-The Drupal site and normal Drush commands should continue to work without debugger connection attempts.
-
-For example:
-
-```bash
-ddev drush status
-```
-
-## Troubleshooting
-
-### Breakpoint is not triggered
-
-Check that:
-
-1. Xdebug is enabled:
-
-   ```bash
-   ddev xdebug status
-   ```
-
-2. VS Code is running **Listen for Xdebug**.
-
-3. The PHP Debug extension is installed in the WSL environment.
-
-4. VS Code is listening on port `9003`:
-
-   ```bash
-   ss -lntp | grep 9003
-   ```
-
-5. DDEV can reach the debugger:
-
-   ```bash
-   ddev exec bash -c 'timeout 2 bash -c "</dev/tcp/host.docker.internal/9003" && echo "PORT OPEN" || echo "PORT CLOSED"'
-   ```
-
-### Breakpoint is shown as unresolved
-
-Check the path mapping:
-
-```text
-/var/www/html → ${workspaceFolder}
-```
-
-The local `${workspaceFolder}` must point to the project root:
-
-```text
-/home/user/projects/DrupalJira
-```
-
-The Drupal document root inside the container is:
-
-```text
-/var/www/html/web
-```
-
-### Drush debugging does not stop
-
-Make sure the command includes:
-
-```bash
---xdebug
-```
-
-For example:
-
-```bash
-ddev drush xdebug-test --xdebug
-```
-
-Also make sure **Listen for Xdebug** is running before starting the command.
