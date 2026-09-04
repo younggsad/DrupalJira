@@ -1,26 +1,22 @@
+<img alt="Drupal Logo" src="https://www.drupal.org/files/Wordmark_blue_RGB.png" height="60px">
+
 # DrupalJira
 
-Drupal 11 issue tracker project running in a local DDEV environment.
+DrupalJira is a Drupal-based training project used to practice Drupal development, local development tooling, debugging, and backend development workflows.
+
+The project uses DDEV to provide a reproducible local Drupal environment.
 
 ## Requirements
 
-* Docker Desktop
-* WSL2 with Ubuntu
-* DDEV
-* Composer 2
+- Docker
+- DDEV
+- WSL2
+- VS Code
+- VS Code **PHP Debug** extension
 
-## Local Environment
+## Local Development
 
-* **Drupal:** 11.4.5
-* **PHP:** 8.4
-* **Database:** MariaDB 11.8
-* **Web server:** nginx-fpm
-* **Composer:** 2
-* **Node.js:** 24
-* **DDEV project type:** `drupal11`
-* **Document root:** `web`
-
-## Start the Project
+### Start the project
 
 From the project root:
 
@@ -28,278 +24,319 @@ From the project root:
 ddev start
 ```
 
-Check the running services:
-
-```bash
-ddev describe
-```
-
-The project should be available at:
-
-**https://drupaljira.ddev.site**
-
-## Stop the Project
-
-To stop the project containers:
-
-```bash
-ddev stop
-```
-
-To start them again:
-
-```bash
-ddev start
-```
-
-## Drupal Administration
-
-Admin login page:
-
-**https://drupaljira.ddev.site/user/login**
-
-### Administrative Credentials
-
-| Field    | Value                |
-| -------- | -------------------- |
-| Username | `admin`              |
-| Password | `DrupalJiraDev2026!` |
-
-> These credentials are intended only for the local development environment.
-
-## Environment Verification
-
-### Check DDEV Services
-
-```bash
-ddev describe
-```
-
-Expected services:
-
-* `web` — `OK`
-* `db` — `OK`
-
-### Check Drupal and PHP
-
-```bash
-ddev drush status
-```
-
-### Verify Installation Profile
-
-```bash
-ddev drush status --fields=install-profile
-```
-
-Expected result:
+The site is available at:
 
 ```text
-Install profile : minimal
+https://drupaljira.ddev.site
 ```
 
-### Drupal Status Report
+To check the current DDEV environment:
 
-Open the Drupal status report:
+```bash
+ddev status
+```
 
-**https://drupaljira.ddev.site/admin/reports/status**
+## Xdebug
 
-The status report should not contain environment-related errors.
+Xdebug is configured to be enabled only when needed.
 
-## Xdebug + PhpStorm
-
-Xdebug is configured for local development and is disabled by default to avoid unnecessary overhead.
+This keeps the normal development environment lightweight and avoids unnecessary debugger connection attempts when debugging is not required.
 
 ### Enable Xdebug
-
-Enable Xdebug when debugging is required:
 
 ```bash
 ddev xdebug on
 ```
 
-Check its status:
+Check the current status:
 
 ```bash
 ddev xdebug status
 ```
 
-Expected result:
-
-```text
-xdebug enabled
-```
-
-### Disable Xdebug
-
-After debugging, disable Xdebug:
+Disable Xdebug when debugging is finished:
 
 ```bash
 ddev xdebug off
 ```
 
-Verify:
+The Xdebug debugger uses port `9003`.
 
-```bash
-ddev xdebug status
-```
+> Port `9003` is used for the Xdebug connection between the DDEV environment and VS Code.
+>
+> Ports `80` and `443` are used for HTTP/HTTPS traffic to the Drupal site.
 
-Expected result:
+## VS Code Xdebug Configuration
 
-```text
-xdebug disabled
-```
-
-Keep Xdebug disabled during normal development when debugging is not required.
-
-### PhpStorm Configuration
-
-Configure a PHP Server in PhpStorm:
-
-| Setting  | Value                  |
-| -------- | ---------------------- |
-| Name     | `DrupalJira-Xdebug`    |
-| Host     | `drupaljira.ddev.site` |
-| Port     | `80`                   |
-| Debugger | `Xdebug`               |
-
-Enable **Use path mappings** and map the project root:
-
-| Local path       | Remote path     |
-| ---------------- | --------------- |
-| `<project-root>` | `/var/www/html` |
-
-For the WSL2 environment, the local project path is similar to:
+The project contains a VS Code debugging configuration:
 
 ```text
-//wsl.localhost/Ubuntu-24.04/home/user/projects/DrupalJira
+.vscode/
+└── launch.json
 ```
 
-The Xdebug debugger port is:
+The configuration listens for incoming Xdebug connections on port `9003` and maps the Drupal container filesystem to the local project:
 
 ```text
-9003
+/var/www/html → ${workspaceFolder}
 ```
 
-In PhpStorm, enable:
+The configuration is:
 
-**Run → Start Listening for PHP Debug Connections**
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Listen for Xdebug",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+        "/var/www/html": "${workspaceFolder}"
+      }
+    }
+  ]
+}
+```
 
-### Web Debugging
+### Start Web Debugging
 
-1. Enable Xdebug:
+1. Open the project in VS Code using **Remote-WSL**.
+2. Make sure the **PHP Debug** extension is installed in the WSL environment.
+3. Enable Xdebug:
 
    ```bash
    ddev xdebug on
    ```
 
-2. Start listening for PHP debug connections in PhpStorm.
+4. Open **Run and Debug** in VS Code.
+5. Select **Listen for Xdebug**.
+6. Start the debugger.
+7. Set a breakpoint in PHP code.
+8. Open the Drupal site in a browser.
 
-3. Set a breakpoint in Drupal code.
-
-4. Open the corresponding page in the browser.
-
-5. PhpStorm should stop execution at the breakpoint.
-
-The path mapping must resolve container paths such as:
+For example, a breakpoint can be placed in:
 
 ```text
-/var/www/html/web/index.php
+web/index.php
 ```
 
-to the local project files.
+When the Drupal request reaches the breakpoint, VS Code pauses execution and provides access to:
 
-### Drush Debugging
+- Call Stack
+- Variables
+- Watch
+- Debug Console
+- Evaluate expressions
+- Step Over
+- Step Into
+- Step Out
+- Continue
 
-Drush disables Xdebug by default for CLI commands for performance reasons.
+Variables can also be modified while execution is paused.
 
-When debugging a Drush command, explicitly enable Xdebug for that invocation:
+## Drush Debugging
+
+Xdebug can also be used to debug PHP code executed through Drush.
+
+Pass the `--xdebug` option to the Drush command:
 
 ```bash
 ddev drush <command> --xdebug
 ```
 
-A simple Xdebug smoke test is provided by the `xdebug_test` development module:
+For example:
+
+```bash
+ddev drush status --xdebug
+```
+
+When the command reaches a breakpoint, VS Code pauses execution in the same way as for a web request.
+
+## Xdebug Test Module
+
+The project contains a temporary custom module used to verify CLI debugging:
+
+```text
+web/modules/custom/xdebug_test/
+├── xdebug_test.info.yml
+└── src/
+    └── Drush/
+        └── Commands/
+            └── XdebugTestCommand.php
+```
+
+The module provides the following Drush command:
 
 ```bash
 ddev drush xdebug-test --xdebug
 ```
 
-Set a breakpoint in:
+The command can be used to verify that:
+
+1. Drush starts a PHP process with Xdebug enabled.
+2. Xdebug connects to VS Code.
+3. VS Code stops execution at a breakpoint.
+4. Variables can be inspected and modified.
+5. Execution can be resumed from the debugger.
+
+Expected output:
 
 ```text
-web/modules/custom/xdebug_test/src/Drush/Commands/XdebugTestCommand.php
+Xdebug + Drush works!
 ```
 
-Then run the command. PhpStorm should stop at the breakpoint and allow inspection and modification of variables.
+## Verify Xdebug Configuration
 
-After modifying a variable in PhpStorm, resume execution and verify the changed value in the Drush output.
-
-### Troubleshooting
-
-Check Xdebug status:
+Check the Xdebug status:
 
 ```bash
 ddev xdebug status
 ```
 
-Check that PhpStorm is listening on port `9003`.
+Check the Xdebug configuration inside the DDEV container:
 
-Verify the connection from the DDEV container:
+```bash
+ddev exec php -i | grep -E 'xdebug.mode|xdebug.start_with_request|xdebug.client_host|xdebug.client_port|xdebug.discover_client_host'
+```
+
+Expected values include:
+
+```text
+xdebug.mode => debug,develop
+xdebug.start_with_request => yes
+xdebug.client_host => host.docker.internal
+xdebug.client_port => 9003
+xdebug.discover_client_host => On
+```
+
+## Verify VS Code Debugger Port
+
+When **Listen for Xdebug** is running, VS Code should listen on port `9003` inside WSL.
+
+Check the listener:
+
+```bash
+ss -lntp | grep 9003
+```
+
+A working configuration should show a listener similar to:
+
+```text
+LISTEN ... *:9003 ...
+```
+
+The port can also be tested locally:
+
+```bash
+nc -zv 127.0.0.1 9003
+```
+
+Expected result:
+
+```text
+Connection to 127.0.0.1 9003 port [tcp/*] succeeded!
+```
+
+## Verify DDEV → VS Code Connectivity
+
+The DDEV container must be able to connect to the debugger:
 
 ```bash
 ddev exec bash -c 'timeout 2 bash -c "</dev/tcp/host.docker.internal/9003" && echo "PORT OPEN" || echo "PORT CLOSED"'
 ```
 
-If debugging is no longer required, turn Xdebug off:
+Expected result when VS Code is listening:
+
+```text
+PORT OPEN
+```
+
+## Disable Xdebug
+
+Xdebug should normally remain disabled when debugging is not required.
+
+Disable it with:
 
 ```bash
 ddev xdebug off
 ```
 
-## Composer
-
-Install project dependencies:
+Then verify:
 
 ```bash
-ddev composer install
+ddev xdebug status
 ```
 
-The project uses Drupal's recommended Composer project structure.
+The Drupal site and normal Drush commands should continue to work without debugger connection attempts.
 
-Drupal core is defined in `composer.json` as:
-
-```json
-"drupal/core-recommended: ^11.4"
-```
-
-The `composer.lock` file is committed to the repository so that dependency versions remain reproducible.
-
-## Git
-
-The following dependencies and generated/local files are excluded from Git:
-
-```text
-/vendor/
-/web/core
-/web/modules/contrib
-/web/themes/contrib
-/web/sites/*/files
-/web/sites/*/settings.local.php
-```
-
-## Setup from a Clean Clone
-
-After cloning the repository:
+For example:
 
 ```bash
-ddev start
-ddev composer install
-```
-
-Then verify the environment:
-
-```bash
-ddev describe
 ddev drush status
 ```
+
+## Troubleshooting
+
+### Breakpoint is not triggered
+
+Check that:
+
+1. Xdebug is enabled:
+
+   ```bash
+   ddev xdebug status
+   ```
+
+2. VS Code is running **Listen for Xdebug**.
+
+3. The PHP Debug extension is installed in the WSL environment.
+
+4. VS Code is listening on port `9003`:
+
+   ```bash
+   ss -lntp | grep 9003
+   ```
+
+5. DDEV can reach the debugger:
+
+   ```bash
+   ddev exec bash -c 'timeout 2 bash -c "</dev/tcp/host.docker.internal/9003" && echo "PORT OPEN" || echo "PORT CLOSED"'
+   ```
+
+### Breakpoint is shown as unresolved
+
+Check the path mapping:
+
+```text
+/var/www/html → ${workspaceFolder}
+```
+
+The local `${workspaceFolder}` must point to the project root:
+
+```text
+/home/user/projects/DrupalJira
+```
+
+The Drupal document root inside the container is:
+
+```text
+/var/www/html/web
+```
+
+### Drush debugging does not stop
+
+Make sure the command includes:
+
+```bash
+--xdebug
+```
+
+For example:
+
+```bash
+ddev drush xdebug-test --xdebug
+```
+
+Also make sure **Listen for Xdebug** is running before starting the command.
