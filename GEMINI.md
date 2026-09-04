@@ -266,3 +266,14 @@ Current project constraints:
 - GrumPHP runs PHPCS + PHPStan through Git hooks
 - Xdebug is configured for development/debugging
 - `PROJECT_CONTEXT.md` must remain synchronized with the real project state
+
+## 13. Importent Rules
+Never finish a completed development task without updating PROJECT_CONTEXT.md.
+
+Before reporting a task as completed:
+1. Verify the implementation.
+2. Run required checks.
+3. Review git diff.
+4. Update PROJECT_CONTEXT.md.
+5. Re-read the updated PROJECT_CONTEXT.md.
+6. Only then report the task as completed.
