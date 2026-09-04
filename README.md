@@ -401,3 +401,92 @@ Expected result:
 ```text
 Connection to 127.0.0.1 9003 port [tcp/*] succeeded!
 ```
+
+## Configuration Management
+
+Drupal configuration is managed using Drupal Core Configuration Management.
+
+The configuration synchronization directory is:
+
+```text
+config/sync
+```
+
+It is located outside the public `web/sites/*/files` directory and is committed to Git.
+
+### Export configuration
+
+After making configuration changes through the Drupal UI, export the active configuration to the synchronization directory:
+
+```bash
+ddev drush cex -y
+```
+
+Review the changes:
+
+```bash
+git status
+git diff -- config/sync
+```
+
+Commit the updated configuration:
+
+```bash
+git add config/sync
+git commit -m "chore: update Drupal configuration"
+git push
+```
+
+Do not manually edit configuration YAML files unless there is a specific development requirement to do so. Configuration changes should normally be made through Drupal and then exported with `drush cex`.
+
+### Import configuration
+
+After pulling configuration changes from Git:
+
+```bash
+git pull
+```
+
+Import the configuration into the local Drupal installation:
+
+```bash
+ddev drush cim -y
+```
+
+Verify that the database and configuration synchronization directory are identical:
+
+```bash
+ddev drush config:status
+```
+
+The expected result is:
+
+```text
+[notice] No differences between DB and sync directory.
+```
+
+### Configuration workflow
+
+The normal workflow is:
+
+```text
+Drupal UI
+    ↓
+Configuration change
+    ↓
+ddev drush cex -y
+    ↓
+config/sync/*.yml
+    ↓
+git commit
+    ↓
+git push
+    ↓
+git pull (another developer)
+    ↓
+ddev drush cim -y
+    ↓
+Updated Drupal configuration
+```
+
+This makes Drupal configuration reproducible between development environments without manually editing configuration files.
