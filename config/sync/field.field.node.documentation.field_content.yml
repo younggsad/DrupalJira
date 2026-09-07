@@ -1,0 +1,46 @@
+uuid: e2f15507-89b3-4255-9a49-2a90635cd05d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_content
+    - node.type.documentation
+    - paragraphs.paragraphs_type.callout
+    - paragraphs.paragraphs_type.code
+    - paragraphs.paragraphs_type.image
+    - paragraphs.paragraphs_type.text
+  module:
+    - entity_reference_revisions
+id: node.documentation.field_content
+field_name: field_content
+entity_type: node
+bundle: documentation
+label: Content
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      callout: callout
+      code: code
+      image: image
+      text: text
+    negate: 0
+    target_bundles_drag_drop:
+      callout:
+        weight: 5
+        enabled: true
+      code:
+        weight: 6
+        enabled: true
+      image:
+        weight: 7
+        enabled: true
+      text:
+        weight: 8
+        enabled: true
+field_type: entity_reference_revisions

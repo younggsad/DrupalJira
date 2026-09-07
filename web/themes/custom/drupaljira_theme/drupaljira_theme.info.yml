@@ -1,0 +1,6 @@
+name: DrupalJira Theme
+type: theme
+description: 'Custom theme for DrupalJira.'
+core_version_requirement: ^11
+base theme: false
+package: DrupalJira

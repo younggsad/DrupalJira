@@ -1,0 +1,33 @@
+uuid: 5681655b-b668-4779-8575-7326c01ab739
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_language
+field_name: field_language
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: php
+      label: PHP
+    -
+      value: twing
+      label: Twing
+    -
+      value: yaml
+      label: YAML
+    -
+      value: js
+      label: JavaScript
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

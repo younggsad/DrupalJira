@@ -1,0 +1,22 @@
+uuid: 511d7a6d-fee4-4990-8d3e-315f60fd50e3
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - drupaljira_theme
+_core:
+  default_config_hash: aeqlWs7HwctZeZC7ADcbxfqehJzBRfZKmuZz3DsH3_4
+id: drupaljira_theme_messages
+theme: drupaljira_theme
+region: highlighted
+weight: 0
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  label_display: '0'
+  provider: system
+visibility: {  }

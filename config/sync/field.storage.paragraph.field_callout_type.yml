@@ -1,0 +1,30 @@
+uuid: b018b13b-56d7-42eb-a514-a7c7cfe87a9b
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_callout_type
+field_name: field_callout_type
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: info
+      label: Info
+    -
+      value: warning
+      label: Warning
+    -
+      value: success
+      label: Success
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

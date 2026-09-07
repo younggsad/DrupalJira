@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the DrupalJira theme.
+ */
+
+use Drupal\Component\Utility\Html;
+
+/**
+ * Implements hook_preprocess_paragraph().
+ */
+function drupaljira_theme_preprocess_paragraph(array &$variables): void {
+  $paragraph = $variables['paragraph'];
+
+  if ($paragraph->bundle() === 'code') {
+    $language = $paragraph->get('field_language')->value;
+
+    if ($language) {
+      $variables['code_language_class'] = 'paragraph--code-' . Html::getClass($language);
+    }
+    else {
+      $variables['code_language_class'] = 'paragraph--code-plain';
+    }
+  }
+}

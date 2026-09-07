@@ -6,6 +6,7 @@ parameters:
 
     paths:
         - web/modules/custom
+        - web/themes/custom
 
     excludePaths:
         - web/modules/custom/*/vendor/*

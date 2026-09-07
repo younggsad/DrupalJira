@@ -1,0 +1,39 @@
+uuid: 7faf4917-9870-45f9-b9cb-8262107559c5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.documentation.field_content
+    - field.field.node.documentation.field_project
+    - node.type.documentation
+  module:
+    - entity_reference_revisions
+    - user
+id: node.documentation.default
+targetEntityType: node
+bundle: documentation
+mode: default
+content:
+  field_content:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_project:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

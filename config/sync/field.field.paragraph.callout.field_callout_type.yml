@@ -1,0 +1,21 @@
+uuid: 4ccfc4d6-84aa-4e7a-ac14-73d505da7528
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_callout_type
+    - paragraphs.paragraphs_type.callout
+  module:
+    - options
+id: paragraph.callout.field_callout_type
+field_name: field_callout_type
+entity_type: paragraph
+bundle: callout
+label: 'Callout type'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

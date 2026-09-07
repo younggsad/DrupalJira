@@ -16,5 +16,8 @@ grumphp:
 
         phpstan:
             configuration: phpstan.neon.dist
+            ignore_patterns:
+                - /^web\/sites\/default\/default\.settings\.php$/
+                - /^web\/sites\/default\/settings\.ddev\.php$/
             triggered_by:
                 - php
