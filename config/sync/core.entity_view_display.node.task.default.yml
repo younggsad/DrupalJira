@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.task.field_assignee
+    - field.field.node.task.field_attachments
     - field.field.node.task.field_body
     - field.field.node.task.field_estimate
     - field.field.node.task.field_project
@@ -25,6 +26,15 @@ content:
       link: true
     third_party_settings: {  }
     weight: 104
+    region: content
+  field_attachments:
+    type: entity_reference_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: false
+    third_party_settings: {  }
+    weight: 106
     region: content
   field_body:
     type: text_default

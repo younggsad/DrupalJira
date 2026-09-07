@@ -1,0 +1,13 @@
+uuid: 71fe3d2b-4174-4899-baca-0b398d996e62
+langcode: en
+status: true
+dependencies: {  }
+id: document
+label: Document
+description: 'Documents attaches to tasks'
+source: file
+queue_thumbnail_downloads: false
+new_revision: false
+source_configuration:
+  source_field: field_media_file
+field_map: {  }

@@ -4,12 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.task.field_assignee
+    - field.field.node.task.field_attachments
     - field.field.node.task.field_body
     - field.field.node.task.field_estimate
     - field.field.node.task.field_project
     - field.field.node.task.field_status
     - node.type.task
   module:
+    - media_library
     - text
 id: node.task.default
 targetEntityType: node
@@ -31,6 +33,13 @@ content:
       match_limit: 10
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  field_attachments:
+    type: media_library_widget
+    weight: 126
+    region: content
+    settings:
+      media_types: {  }
     third_party_settings: {  }
   field_body:
     type: text_textarea_with_summary
