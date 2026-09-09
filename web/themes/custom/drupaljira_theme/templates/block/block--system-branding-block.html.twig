@@ -1,0 +1,11 @@
+{% extends "block.html.twig" %}
+
+{% set attributes = attributes.addClass('site-branding') %}
+
+{% block content %}
+  <div class="site-branding__inner">
+    <a href="{{ path('<front>') }}" rel="home" class="site-branding__logo">
+      <img src="/themes/custom/drupaljira_theme/logo.png" alt="{{ 'Home'|t }}" fetchpriority="high"/>
+    </a>
+  </div>
+{% endblock %}

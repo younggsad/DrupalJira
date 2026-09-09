@@ -1,0 +1,20 @@
+<div class="task-board__columns">
+  {% set columns = {
+    'backlog': 'Backlog',
+    'in_progress': 'In Progress',
+    'review': 'Review',
+    'done': 'Done'
+  } %}
+
+  {% for status, title in columns %}
+    <section class="task-board__column" data-status="{{ status }}">
+      <h2 class="task-board__column-title">{{ title }}</h2>
+
+      <div class="task-board__cards">
+        {% for row in task_board_columns[status] %}
+          {{ row.content }}
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</div>

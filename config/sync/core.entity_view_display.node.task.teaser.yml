@@ -1,0 +1,52 @@
+uuid: 04aaf225-474c-462b-ad18-dd372db41789
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.task.field_assignee
+    - field.field.node.task.field_attachments
+    - field.field.node.task.field_body
+    - field.field.node.task.field_estimate
+    - field.field.node.task.field_project
+    - field.field.node.task.field_status
+    - node.type.task
+  module:
+    - text
+    - user
+id: node.task.teaser
+targetEntityType: node
+bundle: task
+mode: teaser
+content:
+  field_assignee:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_body:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_estimate:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden:
+  field_attachments: true
+  field_project: true
+  field_status: true
+  links: true

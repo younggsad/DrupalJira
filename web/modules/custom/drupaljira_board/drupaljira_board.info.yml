@@ -1,0 +1,5 @@
+name: DrupalJira Board
+type: module
+description: 'Provides AJAX interactions for the DrupalJira task board.'
+package: DrupalJira
+core_version_requirement: ^11

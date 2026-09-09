@@ -5,6 +5,7 @@
  * Theme hooks for the DrupalJira theme.
  */
 
+use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 
 /**
@@ -22,5 +23,94 @@ function drupaljira_theme_preprocess_paragraph(array &$variables): void {
     else {
       $variables['code_language_class'] = 'paragraph--code-plain';
     }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_unformatted().
+ */
+function drupaljira_theme_preprocess_views_view_unformatted(array &$variables): void {
+  if ($variables['view']->id() !== 'task_board') {
+    return;
+  }
+
+  $variables['task_board_columns'] = [
+    'backlog' => [],
+    'in_progress' => [],
+    'review' => [],
+    'done' => [],
+  ];
+
+  foreach ($variables['rows'] as $index => $row) {
+    $result = $variables['view']->result[$index] ?? NULL;
+
+    if (!$result || !isset($result->_entity)) {
+      continue;
+    }
+
+    $node = $result->_entity;
+
+    if ($node->bundle() !== 'task') {
+      continue;
+    }
+
+    $status = $node->get('field_status')->value;
+
+    if (isset($variables['task_board_columns'][$status])) {
+      $variables['task_board_columns'][$status][] = $row;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function drupaljira_theme_preprocess_node(array &$variables): void {
+  $node = $variables['node'];
+
+  if ($node->bundle() !== 'task') {
+    return;
+  }
+
+  if ($variables['view_mode'] === 'teaser') {
+    $variables['attributes']['class'][] = 'task-card';
+    $variables['attributes']['draggable'] = 'true';
+    $variables['attributes']['data-task-id'] = $node->id();
+  }
+
+  if ($variables['view_mode'] === 'full' && isset($variables['content']['field_body'])) {
+    $variables['#attached']['library'][] = 'drupaljira_theme/task-description-edit';
+
+    $edit_url = Url::fromRoute(
+    'frontend_editing.form',
+    [
+      'type' => 'node',
+      'id' => $node->id(),
+    ],
+    [
+      'query' => [
+        'view_mode_id' => 'full',
+      ],
+    ],
+    );
+
+    $edit_link = [
+      '#type' => 'link',
+      '#title' => t('Edit description'),
+      '#url' => $edit_url,
+      '#attributes' => [
+        'class' => [
+          'frontend-editing-open-sidebar',
+          'frontend-editing__action',
+          'frontend-editing__action--edit',
+        ],
+        'title' => t('Edit description'),
+      ],
+    ];
+
+    $variables['content']['field_body']['#suffix'] =
+    '<div class="frontend-editing-actions task-description-edit" data-entity-type="node">'
+    . \Drupal::service('renderer')->render($edit_link)
+    . '</div>';
   }
 }

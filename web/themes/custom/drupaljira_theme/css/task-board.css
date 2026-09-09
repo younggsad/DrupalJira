@@ -1,0 +1,53 @@
+.task-board__columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.task-board__column {
+  min-width: 0;
+  padding: 16px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.task-board__column-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.task-board__cards {
+  min-height: 120px;
+}
+
+.task-board__cards > * {
+  margin-bottom: 12px;
+}
+
+.task-board__cards > *:last-child {
+  margin-bottom: 0;
+}
+
+.task-card--dragging {
+  opacity: 0.5;
+}
+
+.task-board__column--drag-over {
+  outline: 2px dashed currentColor;
+}
+
+.task-description-edit {
+  display: inline-flex;
+  margin-top: 8px;
+}
+
+.task-description-edit .frontend-editing__action {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.task-description-edit .frontend-editing__action--edit::before {
+  content: '';
+}

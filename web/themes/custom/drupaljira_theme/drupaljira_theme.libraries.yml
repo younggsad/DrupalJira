@@ -1,0 +1,25 @@
+task-board:
+  css:
+    theme:
+      css/task-board.css: {}
+
+  js:
+    js/task-board.js: {}
+
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupal.dialog
+
+task-description-edit:
+  js:
+    js/task-description-edit.js: {}
+
+  dependencies:
+    - core/drupal
+    - core/once
+
+branding:
+  css:
+    theme:
+      css/branding.css: {}

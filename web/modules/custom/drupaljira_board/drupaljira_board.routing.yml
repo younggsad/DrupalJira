@@ -1,0 +1,16 @@
+drupaljira_board.update_status:
+  path: '/task/{node}/status'
+  defaults:
+    _controller: '\Drupal\drupaljira_board\Controller\TaskBoardController::updateStatus'
+  methods: [POST]
+  requirements:
+    _entity_access: 'node.update'
+    _csrf_request_header_token: 'TRUE'
+
+drupaljira_board.task_modal:
+  path: '/task/{node}/modal'
+  defaults:
+    _controller: '\Drupal\drupaljira_board\Controller\TaskBoardController::taskModal'
+  methods: [GET]
+  requirements:
+    _entity_access: 'node.view'
