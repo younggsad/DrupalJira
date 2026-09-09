@@ -5,7 +5,6 @@
  * Theme hooks for the DrupalJira theme.
  */
 
-use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 
 /**
@@ -76,41 +75,5 @@ function drupaljira_theme_preprocess_node(array &$variables): void {
     $variables['attributes']['class'][] = 'task-card';
     $variables['attributes']['draggable'] = 'true';
     $variables['attributes']['data-task-id'] = $node->id();
-  }
-
-  if ($variables['view_mode'] === 'full' && isset($variables['content']['field_body'])) {
-    $variables['#attached']['library'][] = 'drupaljira_theme/task-description-edit';
-
-    $edit_url = Url::fromRoute(
-    'frontend_editing.form',
-    [
-      'type' => 'node',
-      'id' => $node->id(),
-    ],
-    [
-      'query' => [
-        'view_mode_id' => 'full',
-      ],
-    ],
-    );
-
-    $edit_link = [
-      '#type' => 'link',
-      '#title' => t('Edit description'),
-      '#url' => $edit_url,
-      '#attributes' => [
-        'class' => [
-          'frontend-editing-open-sidebar',
-          'frontend-editing__action',
-          'frontend-editing__action--edit',
-        ],
-        'title' => t('Edit description'),
-      ],
-    ];
-
-    $variables['content']['field_body']['#suffix'] =
-    '<div class="frontend-editing-actions task-description-edit" data-entity-type="node">'
-    . \Drupal::service('renderer')->render($edit_link)
-    . '</div>';
   }
 }

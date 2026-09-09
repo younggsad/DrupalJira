@@ -6,4 +6,3 @@ base theme: false
 package: DrupalJira
 libraries:
   - drupaljira_theme/task-board
-  - drupaljira_theme/branding
