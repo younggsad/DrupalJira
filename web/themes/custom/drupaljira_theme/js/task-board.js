@@ -9,8 +9,15 @@
 
         cards.forEach((card) => {
           card.addEventListener('dragstart', (event) => {
-            event.dataTransfer.setData('text/plain', card.dataset.taskId);
+            const taskId = card.dataset.taskId;
+
+            if (!taskId) {
+              return;
+            }
+
+            event.dataTransfer.setData('text/plain', taskId);
             event.dataTransfer.effectAllowed = 'move';
+
             card.classList.add('task-card--dragging');
           });
 
@@ -19,23 +26,29 @@
           });
 
           card.addEventListener('click', async (event) => {
-            if (event.target.closest('.frontend-editing-actions')) {
-              return;
-            }
-
             if (card.classList.contains('task-card--dragging')) {
               return;
             }
 
-            const link = event.target.closest('a');
-
-            if (!link || !card.contains(link)) {
+            /*
+             * Do not open the modal when clicking interactive controls.
+             * The card itself, including links inside it, opens the modal.
+             */
+            if (
+              event.target.closest(
+                'button, input, textarea, select, .frontend-editing-actions',
+              )
+            ) {
               return;
             }
 
             event.preventDefault();
 
             const taskId = card.dataset.taskId;
+
+            if (!taskId) {
+              return;
+            }
 
             try {
               const response = await fetch(
@@ -53,21 +66,28 @@
 
               const html = await response.text();
 
-              const dialog = Drupal.dialog(
+              const title =
+                card.querySelector('.node__title, .field--name-title')
+                  ?.textContent.trim() || 'Task';
+
+              let dialog;
+
+              dialog = Drupal.dialog(
                 `<div class="task-board__modal-content">${html}</div>`,
                 {
-                  title: link.textContent.trim(),
+                  title,
                   modal: true,
                   width: '70%',
                   maxWidth: '900px',
                   buttons: [],
-                  close: function () {
+                  close() {
                     dialog.destroy();
                   },
                 },
               );
 
               dialog.showModal();
+
               Drupal.attachBehaviors(dialog.$element[0]);
             }
             catch (error) {
@@ -77,27 +97,47 @@
         });
 
         columns.forEach((column) => {
-          const cardsContainer = column.querySelector('.task-board__cards');
+          const cardsContainer = column.querySelector(
+            '.task-board__cards',
+          );
+
+          if (!cardsContainer) {
+            return;
+          }
 
           column.addEventListener('dragover', (event) => {
             event.preventDefault();
+
             event.dataTransfer.dropEffect = 'move';
-            column.classList.add('task-board__column--drag-over');
+
+            column.classList.add(
+              'task-board__column--drag-over',
+            );
           });
 
           column.addEventListener('dragleave', (event) => {
             if (!column.contains(event.relatedTarget)) {
-              column.classList.remove('task-board__column--drag-over');
+              column.classList.remove(
+                'task-board__column--drag-over',
+              );
             }
           });
 
           column.addEventListener('drop', async (event) => {
             event.preventDefault();
 
-            const taskId = event.dataTransfer.getData('text/plain');
+            const taskId =
+              event.dataTransfer.getData('text/plain');
+
             const newStatus = column.dataset.status;
 
-            column.classList.remove('task-board__column--drag-over');
+            column.classList.remove(
+              'task-board__column--drag-over',
+            );
+
+            if (!taskId || !newStatus) {
+              return;
+            }
 
             const card = board.querySelector(
               `.task-card[data-task-id="${CSS.escape(taskId)}"]`,
@@ -109,6 +149,10 @@
 
             const previousContainer = card.parentElement;
 
+            if (previousContainer === cardsContainer) {
+              return;
+            }
+
             cardsContainer.appendChild(card);
 
             try {
@@ -117,7 +161,9 @@
               );
 
               if (!tokenResponse.ok) {
-                throw new Error('Failed to get CSRF token.');
+                throw new Error(
+                  'Failed to get CSRF token.',
+                );
               }
 
               const csrfToken = await tokenResponse.text();
@@ -137,7 +183,9 @@
               );
 
               if (!response.ok) {
-                throw new Error('Failed to update task status.');
+                throw new Error(
+                  'Failed to update task status.',
+                );
               }
 
               const result = await response.json();
@@ -149,7 +197,11 @@
               }
             }
             catch (error) {
-              console.error('DrupalJira Board:', error);
+              console.error(
+                'DrupalJira Board:',
+                error,
+              );
+
               previousContainer.appendChild(card);
             }
           });
