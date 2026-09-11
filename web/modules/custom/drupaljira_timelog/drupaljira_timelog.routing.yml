@@ -45,3 +45,43 @@ entity.time_log.collection:
     _title: 'Time Logs'
   requirements:
     _permission: 'administer time_log'
+
+drupaljira.timelog_debug.crud:
+  path: '/admin/drupaljira/timelog-debug/crud/{task}'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\TimeLogDebugController::crud'
+    _title: 'TimeLog CRUD Debug'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    parameters:
+      task:
+        type: entity:node
+        bundle: task
+
+drupaljira.timelog_debug.list:
+  path: '/admin/drupaljira/timelog-debug/list/{task}'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\TimeLogDebugController::list'
+    _title: 'TimeLog List Debug'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    parameters:
+      task:
+        type: entity:node
+        bundle: task
+
+drupaljira.timelog_debug.sum:
+  path: '/admin/drupaljira/timelog-debug/sum/{task}'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\TimeLogDebugController::sum'
+    _title: 'TimeLog Sum Debug'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    parameters:
+      task:
+        type: entity:node
+        bundle: task
+        

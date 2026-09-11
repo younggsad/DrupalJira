@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 use Drupal\Core\Render\Element;
+use Drupal\drupaljira_timelog\TimeLogInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -32,6 +33,7 @@ function drupaljira_timelog_theme(): array {
  */
 function template_preprocess_time_log(array &$variables): void {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
+
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
@@ -40,17 +42,28 @@ function template_preprocess_time_log(array &$variables): void {
 /**
  * Implements hook_user_cancel().
  */
-function drupaljira_timelog_user_cancel($edit, UserInterface $account, $method): void {
+function drupaljira_timelog_user_cancel(
+  $edit,
+  UserInterface $account,
+  $method,
+): void {
   switch ($method) {
     case 'user_cancel_reassign':
       // Anonymize time logs.
       $storage = \Drupal::entityTypeManager()->getStorage('time_log');
+
       $time_log_ids = $storage->getQuery()
         ->condition('uid', $account->id())
         ->accessCheck(FALSE)
         ->execute();
+
       foreach ($storage->loadMultiple($time_log_ids) as $time_log) {
-        $time_log->setOwnerId(0)->save();
+        if (!$time_log instanceof TimeLogInterface) {
+          continue;
+        }
+
+        $time_log->setOwnerId(0);
+        $time_log->save();
       }
       break;
   }
@@ -59,13 +72,17 @@ function drupaljira_timelog_user_cancel($edit, UserInterface $account, $method):
 /**
  * Implements hook_ENTITY_TYPE_predelete() for user entities.
  */
-function drupaljira_timelog_user_predelete(UserInterface $account): void {
+function drupaljira_timelog_user_predelete(
+  UserInterface $account,
+): void {
   // Delete time logs that belong to this account.
   $storage = \Drupal::entityTypeManager()->getStorage('time_log');
+
   $time_log_ids = $storage->getQuery()
     ->condition('uid', $account->id())
     ->accessCheck(FALSE)
     ->execute();
+
   $storage->delete(
     $storage->loadMultiple($time_log_ids)
   );
