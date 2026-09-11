@@ -1,0 +1,11 @@
+administer time_log:
+  title: 'Administer time logs'
+  restrict access: true
+view time_log:
+  title: 'View time log'
+edit time_log:
+  title: 'Edit time log'
+delete time_log:
+  title: 'Delete time log'
+create time_log:
+  title: 'Create time log'
