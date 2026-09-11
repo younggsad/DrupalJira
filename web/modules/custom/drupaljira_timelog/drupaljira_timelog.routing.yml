@@ -1,0 +1,47 @@
+entity.time_log.add_form:
+  path: '/time-log/add'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\TimeLogAddController::add'
+    _title: 'Add Time Log'
+  requirements:
+    _permission: 'administer time_log'
+
+entity.time_log.admin_add_form:
+  path: '/admin/structure/time-log/add'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\TimeLogAddController::add'
+    _title: 'Add Time Log'
+  requirements:
+    _permission: 'administer time_log'
+
+entity.time_log.canonical:
+  path: '/time-log/{time_log}'
+  defaults:
+    _entity_form: 'time_log.default'
+    _title: 'Time Log'
+  requirements:
+    _permission: 'administer time_log'
+
+entity.time_log.edit_form:
+  path: '/time-log/{time_log}/edit'
+  defaults:
+    _entity_form: 'time_log.edit'
+    _title: 'Edit Time Log'
+  requirements:
+    _permission: 'administer time_log'
+
+entity.time_log.delete_form:
+  path: '/time-log/{time_log}/delete'
+  defaults:
+    _entity_form: 'time_log.delete'
+    _title: 'Delete Time Log'
+  requirements:
+    _permission: 'administer time_log'
+
+entity.time_log.collection:
+  path: '/admin/content/time-log'
+  defaults:
+    _entity_list: 'time_log'
+    _title: 'Time Logs'
+  requirements:
+    _permission: 'administer time_log'

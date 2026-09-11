@@ -1,0 +1,10 @@
+entity.time_log.edit_form:
+  route_name: entity.time_log.edit_form
+  group: time_log
+  title: 'Edit'
+
+entity.time_log.delete_form:
+  route_name: entity.time_log.delete_form
+  group: time_log
+  title: 'Delete'
+  weight: 10
