@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - drupaljira_timelog
+id: time_log_delete_action
+label: 'Delete time logs'
+type: time_log
+plugin: entity:delete_action:time_log
+configuration: {  }

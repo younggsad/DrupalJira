@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - drupaljira_timelog
+id: time_log_save_action
+label: 'Save time logs'
+type: time_log
+plugin: entity:save_action:time_log
+configuration: {  }

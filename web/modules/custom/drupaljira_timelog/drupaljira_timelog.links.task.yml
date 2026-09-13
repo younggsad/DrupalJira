@@ -1,0 +1,22 @@
+entity.time_log.settings:
+  title: 'Settings'
+  route_name: entity.time_log.settings
+  base_route: entity.time_log.settings
+entity.time_log.view:
+  title: 'View'
+  route_name: entity.time_log.canonical
+  base_route: entity.time_log.canonical
+entity.time_log.edit_form:
+  title: 'Edit'
+  route_name: entity.time_log.edit_form
+  base_route: entity.time_log.canonical
+entity.time_log.delete_form:
+  title: 'Delete'
+  route_name: entity.time_log.delete_form
+  base_route: entity.time_log.canonical
+  weight: 10
+entity.time_log.collection:
+  title: 'Time Logs'
+  route_name: entity.time_log.collection
+  base_route: system.admin_content
+  weight: 10

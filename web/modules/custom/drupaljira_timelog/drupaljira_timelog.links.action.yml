@@ -1,0 +1,5 @@
+time_log.add_form:
+  title: 'Add time log'
+  route_name: entity.time_log.add_form
+  appears_on:
+    - entity.time_log.collection

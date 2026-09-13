@@ -1,0 +1,9 @@
+name: 'DrupalJira TimeLog'
+type: module
+description: 'Provides custom TimeLog content entity for tracking time spent on tasks.'
+package: 'DrupalJira'
+core_version_requirement: ^11
+dependencies:
+  - drupal:datetime
+  - drupal:node
+  - drupal:user
