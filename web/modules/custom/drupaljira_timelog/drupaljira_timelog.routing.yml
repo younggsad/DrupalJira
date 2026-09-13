@@ -84,4 +84,18 @@ drupaljira.timelog_debug.sum:
       task:
         type: entity:node
         bundle: task
-        
+
+drupaljira_timelog.write_off:
+  path: '/task/{task}/log-time'
+  defaults:
+    _form: '\Drupal\drupaljira_timelog\Form\TimeLogWriteOffForm'
+    _title: 'Log time'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _permission: 'create time_log'
+  options:
+    parameters:
+      task:
+        type: entity:node
+        bundle:
+          - task
