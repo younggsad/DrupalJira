@@ -1,5 +1,12 @@
 services:
-  drupaljira.task_stat:
+  drupaljira_timelog.task_stat_service:
     class: Drupal\drupaljira_timelog\Service\TaskStatService
     arguments:
       - '@entity_type.manager'
+
+  plugin.manager.report_generator:
+    class: Drupal\drupaljira_timelog\ReportGeneratorManager
+    arguments:
+      - '@container.namespaces'
+      - '@cache.discovery'
+      - '@module_handler'
