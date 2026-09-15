@@ -20,10 +20,10 @@ class TaskStatService {
   /**
    * Constructs a TaskStatService object.
    */
-  public function __construct() {
-    // Dependency injection is introduced in the next task.
-    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
-    $this->entityTypeManager = \Drupal::entityTypeManager();
+  public function __construct(
+    EntityTypeManagerInterface $entityTypeManager,
+  ) {
+    $this->entityTypeManager = $entityTypeManager;
   }
 
   /**
