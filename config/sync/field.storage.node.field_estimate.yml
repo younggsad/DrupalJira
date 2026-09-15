@@ -10,7 +10,7 @@ entity_type: node
 type: decimal
 settings:
   precision: 10
-  scale: 1
+  scale: 2
 module: core
 locked: false
 cardinality: 1

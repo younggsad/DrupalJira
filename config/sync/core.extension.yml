@@ -4,8 +4,10 @@ module:
   block: 0
   config: 0
   contextual: 0
+  datetime: 0
   dblog: 0
   drupaljira_board: 0
+  drupaljira_timelog: 0
   dynamic_page_cache: 0
   entity_reference_revisions: 0
   field: 0
