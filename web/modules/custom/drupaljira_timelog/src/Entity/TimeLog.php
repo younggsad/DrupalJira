@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\drupaljira_timelog\Entity;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Attribute\ContentEntityType;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
@@ -18,6 +19,7 @@ use Drupal\drupaljira_timelog\Form\TimeLogForm;
 use Drupal\drupaljira_timelog\TimeLogAccessControlHandler;
 use Drupal\drupaljira_timelog\TimeLogInterface;
 use Drupal\drupaljira_timelog\TimeLogListBuilder;
+use Drupal\node\NodeInterface;
 use Drupal\user\EntityOwnerTrait;
 use Drupal\views\EntityViewsData;
 
@@ -75,6 +77,7 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
    */
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
+
     if (!$this->getOwnerId()) {
       $this->setOwnerId(0);
     }
@@ -83,7 +86,47 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
   /**
    * {@inheritdoc}
    */
-  public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
+  public function postSave(
+    EntityStorageInterface $storage,
+    $update = TRUE,
+  ): void {
+    parent::postSave($storage, $update);
+
+    $task = $this->get('task')->entity;
+
+    if ($task instanceof NodeInterface) {
+      Cache::invalidateTags($task->getCacheTags());
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preDelete(
+    EntityStorageInterface $storage,
+    array $entities,
+  ): void {
+    foreach ($entities as $entity) {
+      if (!$entity instanceof self) {
+        continue;
+      }
+
+      $task = $entity->get('task')->entity;
+
+      if ($task instanceof NodeInterface) {
+        Cache::invalidateTags($task->getCacheTags());
+      }
+    }
+
+    parent::preDelete($storage, $entities);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function baseFieldDefinitions(
+    EntityTypeInterface $entity_type,
+  ): array {
     $fields = parent::baseFieldDefinitions($entity_type);
 
     // 1. Task (Entity Reference -> Node 'task') - REQUIRED.
@@ -220,7 +263,7 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Standard created and changed timestamps.
+    // Standard created timestamp.
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the time log was created.'))
@@ -229,13 +272,14 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
         'type' => 'timestamp',
         'weight' => 20,
       ])
-      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('form', [
         'type' => 'datetime_timestamp',
         'weight' => 20,
       ])
+      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Standard changed timestamp.
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the time log was last edited.'));
