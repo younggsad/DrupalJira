@@ -63,7 +63,7 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('drupaljira_timelog.task_stat_service'),
+      $container->get('drupaljira.task_stat'),
     );
   }
 

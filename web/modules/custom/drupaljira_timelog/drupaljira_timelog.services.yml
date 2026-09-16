@@ -1,5 +1,5 @@
 services:
-  drupaljira_timelog.task_stat_service:
+  drupaljira.task_stat:
     class: Drupal\drupaljira_timelog\Service\TaskStatService
     arguments:
       - '@entity_type.manager'

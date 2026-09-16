@@ -58,7 +58,7 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('drupaljira_timelog.task_stat_service'),
+      $container->get('drupaljira.task_stat'),
       $container->get('current_route_match'),
     );
   }
