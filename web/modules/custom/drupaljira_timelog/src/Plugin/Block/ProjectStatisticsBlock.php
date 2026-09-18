@@ -7,7 +7,6 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\drupaljira_timelog\Service\TaskStatService;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -30,8 +29,6 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\drupaljira_timelog\Service\TaskStatService $taskStatService
-   *   The task statistics service.
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
    *   The current route match.
    */
@@ -39,7 +36,6 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    protected TaskStatService $taskStatService,
     protected RouteMatchInterface $routeMatch,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -58,7 +54,6 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('drupaljira.task_stat'),
       $container->get('current_route_match'),
     );
   }
@@ -73,38 +68,12 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       return [];
     }
 
-    $stats = $this->taskStatService->getProjectStats($project);
-
     return [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['project-statistics'],
-      ],
-      'heading' => [
-        '#markup' => '<h2>' . $this->t('Project Statistics') . '</h2>',
-      ],
-      'statistics' => [
-        '#theme' => 'item_list',
-        '#items' => [
-          $this->t('Tasks: @count', [
-            '@count' => $stats['task_count'],
-          ]),
-          $this->t('Completed tasks: @count', [
-            '@count' => $stats['done_count'],
-          ]),
-          $this->t('Total estimate: @hours hours', [
-            '@hours' => $this->formatHours($stats['total_estimate']),
-          ]),
-          $this->t('Total logged: @hours hours', [
-            '@hours' => $this->formatHours($stats['total_logged']),
-          ]),
-          $this->t('Over estimate: @count', [
-            '@count' => $stats['over_estimate_count'],
-          ]),
-        ],
-      ],
+      '#theme' => 'drupaljira_project_stats',
+      '#project' => $project,
       '#cache' => [
         'contexts' => ['url.path'],
+        'tags' => $project->getCacheTags(),
       ],
     ];
   }
@@ -141,22 +110,6 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
     }
 
     return $project;
-  }
-
-  /**
-   * Formats a number of hours for display.
-   *
-   * @param float $hours
-   *   The number of hours.
-   *
-   * @return string
-   *   The formatted number.
-   */
-  protected function formatHours(float $hours): string {
-    return rtrim(
-      rtrim(number_format($hours, 2, '.', ''), '0'),
-      '.',
-    );
   }
 
 }
