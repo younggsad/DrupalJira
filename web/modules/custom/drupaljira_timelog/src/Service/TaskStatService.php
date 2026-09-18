@@ -105,12 +105,13 @@ class TaskStatService {
         $done_count++;
       }
 
-      $total_estimate += (float) $task->get('field_estimate')->value;
+      $estimate = (float) $task->get('field_estimate')->value;
+      $total_estimate += $estimate;
 
       $logged_hours = $this->getLoggedHours($task);
       $total_logged += $logged_hours;
 
-      if ($this->getRemainingEstimate($task) < 0) {
+      if ($estimate - $logged_hours < 0) {
         $over_estimate_count++;
       }
     }
@@ -120,6 +121,7 @@ class TaskStatService {
       'done_count' => $done_count,
       'total_estimate' => $total_estimate,
       'total_logged' => $total_logged,
+      'remaining_hours' => $total_estimate - $total_logged,
       'over_estimate_count' => $over_estimate_count,
     ];
   }
