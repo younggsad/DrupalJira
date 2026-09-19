@@ -73,7 +73,9 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       '#project' => $project,
       '#cache' => [
         'contexts' => ['url.path'],
-        'tags' => $project->getCacheTags(),
+        'tags' => [
+          'drupaljira_project_stats:' . $project->id(),
+        ],
       ],
     ];
   }

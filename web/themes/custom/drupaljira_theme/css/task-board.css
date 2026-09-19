@@ -66,6 +66,12 @@
   transform: translateY(-1px);
 }
 
+.task-card.my-task {
+  border-left: 4px solid #7c5cff;
+  background: #f6f3ff;
+  box-shadow: 0 2px 8px rgb(124 92 255 / 15%);
+}
+
 .task-card:active {
   cursor: grabbing;
 }
