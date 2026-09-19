@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for DrupalJira Board module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function drupaljira_board_node_view_alter(
+  array &$build,
+  NodeInterface $node,
+  EntityViewDisplayInterface $display,
+): void {
+  if ($node->bundle() !== 'task' || $display->getMode() !== 'teaser') {
+    return;
+  }
+
+  $build['#cache']['contexts'][] = 'user';
+
+  $current_user_id = (int) \Drupal::currentUser()->id();
+
+  if ($current_user_id === 0) {
+    return;
+  }
+
+  if ($node->get('field_assignee')->isEmpty()) {
+    return;
+  }
+
+  $assignee_id = (int) $node->get('field_assignee')->target_id;
+
+  if ($assignee_id !== $current_user_id) {
+    return;
+  }
+
+  $build['#attributes']['class'][] = 'my-task';
+}
