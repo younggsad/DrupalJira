@@ -1,4 +1,5 @@
 services:
+
   drupaljira.task_stat:
     class: Drupal\drupaljira_timelog\Service\TaskStatService
     arguments:
@@ -10,3 +11,6 @@ services:
       - '@container.namespaces'
       - '@cache.discovery'
       - '@module_handler'
+
+  drupaljira_timelog.duration_formatter:
+    class: Drupal\drupaljira_timelog\Service\DurationFormatter
