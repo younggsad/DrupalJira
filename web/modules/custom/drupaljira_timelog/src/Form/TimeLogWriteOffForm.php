@@ -9,7 +9,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\drupaljira_timelog\Event\TimeLogCreatedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides a form for logging time against a task.
@@ -25,11 +27,14 @@ final class TimeLogWriteOffForm extends FormBase {
    *   The current route match.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   The current user.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   *   The event dispatcher.
    */
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly CurrentRouteMatch $currentRouteMatch,
     private readonly AccountProxyInterface $currentUser,
+    private readonly EventDispatcherInterface $eventDispatcher,
   ) {}
 
   /**
@@ -40,6 +45,7 @@ final class TimeLogWriteOffForm extends FormBase {
       $container->get('entity_type.manager'),
       $container->get('current_route_match'),
       $container->get('current_user'),
+      $container->get('event_dispatcher'),
     );
   }
 
@@ -163,6 +169,10 @@ final class TimeLogWriteOffForm extends FormBase {
       ]);
 
     $time_log->save();
+
+    $this->eventDispatcher->dispatch(
+      new TimeLogCreatedEvent($time_log)
+    );
 
     $this->messenger()->addStatus(
       $this->t('Time has been logged successfully.')

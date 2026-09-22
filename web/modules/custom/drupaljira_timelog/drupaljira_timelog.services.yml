@@ -14,3 +14,10 @@ services:
 
   drupaljira_timelog.duration_formatter:
     class: Drupal\drupaljira_timelog\Service\DurationFormatter
+
+  drupaljira_timelog.event_subscriber.time_log_created:
+    class: Drupal\drupaljira_timelog\EventSubscriber\TimeLogCreatedSubscriber
+    arguments:
+      - '@logger.factory'
+    tags:
+      - { name: event_subscriber }
