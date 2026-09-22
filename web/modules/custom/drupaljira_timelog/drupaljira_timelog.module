@@ -62,13 +62,6 @@ function _drupaljira_timelog_invalidate_project_stats_cache(
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert() for time_log entities.
- */
-function drupaljira_timelog_time_log_insert(TimeLogInterface $entity): void {
-  _drupaljira_timelog_invalidate_project_stats_cache($entity);
-}
-
-/**
  * Implements hook_ENTITY_TYPE_update() for time_log entities.
  */
 function drupaljira_timelog_time_log_update(TimeLogInterface $entity): void {
