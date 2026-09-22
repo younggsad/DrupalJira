@@ -66,6 +66,21 @@ function _drupaljira_timelog_invalidate_project_stats_cache(
  */
 function drupaljira_timelog_time_log_insert(TimeLogInterface $entity): void {
   _drupaljira_timelog_invalidate_project_stats_cache($entity);
+
+  $task = $entity->get('task')->entity;
+  $user = $entity->getOwner();
+
+  \Drupal::logger('drupaljira_timelog')->notice(
+    'Time logged: user @user (@uid), @hours hours, task @task.',
+    [
+      '@user' => $user ? $user->getDisplayName() : 'Unknown',
+      '@uid' => $entity->getOwnerId(),
+      '@hours' => $entity->get('hours')->value,
+      '@task' => $task instanceof NodeInterface
+        ? $task->id()
+        : 'Unknown',
+    ]
+  );
 }
 
 /**
