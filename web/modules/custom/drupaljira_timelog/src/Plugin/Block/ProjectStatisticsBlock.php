@@ -2,6 +2,7 @@
 
 namespace Drupal\drupaljira_timelog\Plugin\Block;
 
+use Drupal\Core\Url;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -85,28 +86,42 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
     $remaining = (float) $stats['remaining_hours'];
 
     return [
-      '#theme' => 'drupaljira_project_stats',
-      '#project' => $project,
-      '#project_name' => $project->label(),
-      '#total_estimate' => $this->t('Total pledged: @hours', [
-        '@hours' => $this->durationFormatter->format($totalEstimate),
-      ]),
-      '#total_logged' => $this->t('Total logged: @hours', [
-        '@hours' => $this->durationFormatter->format($totalLogged),
-      ]),
-      '#remaining_hours' => $this->t('Remaining: @hours', [
-        '@hours' => $this->durationFormatter->format($remaining),
-      ]),
-      '#tasks_summary' => $this->t('Completed tasks: @done of @total', [
-        '@done' => $stats['done_count'],
-        '@total' => $stats['task_count'],
-      ]),
-      '#over_estimate_count' => $this->t(
-        'Tasks over estimate: @count',
-        [
-          '@count' => $stats['over_estimate_count'],
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'project-statistics-wrapper',
+      ],
+      'content' => [
+        '#theme' => 'drupaljira_project_stats',
+        '#project' => $project,
+        '#project_name' => $project->label(),
+        '#total_estimate' => $this->t('Total pledged: @hours', [
+          '@hours' => $this->durationFormatter->format($totalEstimate),
+        ]),
+        '#total_logged' => $this->t('Total logged: @hours', [
+          '@hours' => $this->durationFormatter->format($totalLogged),
+        ]),
+        '#remaining_hours' => $this->t('Remaining: @hours', [
+          '@hours' => $this->durationFormatter->format($remaining),
+        ]),
+        '#tasks_summary' => $this->t('Completed tasks: @done of @total', [
+          '@done' => $stats['done_count'],
+          '@total' => $stats['task_count'],
+        ]),
+        '#over_estimate_count' => $this->t(
+          'Tasks over estimate: @count',
+          [
+            '@count' => $stats['over_estimate_count'],
+          ],
+        ),
+      ],
+      'refresh_link' => [
+        '#type' => 'link',
+        '#title' => $this->t('Refresh statistics'),
+        '#url' => Url::fromRoute('drupaljira_timelog.project_stats', ['node' => $project->id()]),
+        '#attributes' => [
+          'class' => ['use-ajax', 'button', 'button--small'],
         ],
-      ),
+      ],
       '#cache' => [
         'contexts' => ['url.path'],
         'tags' => [
