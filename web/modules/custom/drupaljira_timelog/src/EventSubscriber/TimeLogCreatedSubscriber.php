@@ -60,7 +60,7 @@ final class TimeLogCreatedSubscriber implements EventSubscriberInterface {
       ->notice(
         'Time logged: user @user (@uid), @hours hours, task @task.',
         [
-          '@user' => $user ? $user->getDisplayName() : 'Unknown',
+          '@user' => $user->getDisplayName(),
           '@uid' => $time_log->getOwnerId(),
           '@hours' => $time_log->get('hours')->value,
           '@task' => $task instanceof NodeInterface

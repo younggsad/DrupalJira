@@ -153,6 +153,7 @@ final class TimeLogWriteOffForm extends FormBase {
     $task = $this->currentRouteMatch->getParameter('task');
     $values = $form_state->getValues();
 
+    /** @var \Drupal\drupaljira_timelog\TimeLogInterface $time_log */
     $time_log = $this->entityTypeManager
       ->getStorage('time_log')
       ->create([
