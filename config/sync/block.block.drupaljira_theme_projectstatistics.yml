@@ -4,6 +4,7 @@ status: true
 dependencies:
   module:
     - drupaljira_timelog
+    - node
   theme:
     - drupaljira_theme
 id: drupaljira_theme_projectstatistics
@@ -17,4 +18,11 @@ settings:
   label: 'Project Statistics'
   label_display: visible
   provider: drupaljira_timelog
-visibility: {  }
+visibility:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      project: project
