@@ -1,10 +1,23 @@
 {
+  "files.associations": {
+    "*.module": "php",
+    "*.install": "php",
+    "*.inc": "php",
+    "*.theme": "php",
+    "*.profile": "php",
+    "*.engine": "php"
+  },
+
   "emeraldwalk.runonsave": {
     "commands": [
       {
-        "match": "\\.php$",
+        "match": "\\.(php|module|install|inc|theme|profile|engine)$",
         "cmd": "bash \"${workspaceFolder}/scripts/phpcbf-file.sh\" \"${file}\""
       }
     ]
+  },
+
+  "php.problems.exclude": {
+    "**/core/**": true
   }
 }
