@@ -44,7 +44,9 @@ function drupaljira_timelog_update_10001(&$sandbox) {
       $sandbox['project_finished'] = TRUE;
     }
     else {
-      foreach ($storage->loadMultiple($project_ids) as $project) {
+      /** @var \Drupal\node\NodeInterface[] $projects */
+      $projects = $storage->loadMultiple($project_ids);
+      foreach ($projects as $project) {
         $sandbox['project_last_nid'] = $project->id();
         $sandbox['projects_processed']++;
 
@@ -86,7 +88,9 @@ function drupaljira_timelog_update_10001(&$sandbox) {
       $sandbox['task_finished'] = TRUE;
     }
     else {
-      foreach ($storage->loadMultiple($task_ids) as $task) {
+      /** @var \Drupal\node\NodeInterface[] $tasks */
+      $tasks = $storage->loadMultiple($task_ids);
+      foreach ($tasks as $task) {
         $sandbox['task_last_nid'] = $task->id();
         $sandbox['tasks_processed']++;
 

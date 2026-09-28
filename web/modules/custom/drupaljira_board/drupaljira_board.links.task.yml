@@ -1,0 +1,4 @@
+drupaljira_board.project_sprints:
+  route_name: drupaljira_board.project_sprints
+  title: 'Sprints'
+  base_route: entity.node.canonical
