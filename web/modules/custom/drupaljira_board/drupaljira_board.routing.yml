@@ -14,3 +14,16 @@ drupaljira_board.task_modal:
   methods: [GET]
   requirements:
     _entity_access: 'node.view'
+
+drupaljira_board.project_sprints:
+  path: '/project/{node}/sprints'
+  defaults:
+    _controller: '\Drupal\drupaljira_board\Controller\SprintController::page'
+    _title: 'Sprints'
+  requirements:
+    _custom_access: '\Drupal\drupaljira_board\Access\SprintAccessCheck::access'
+    node: '\d+'
+  options:
+    parameters:
+      node:
+        type: entity:node

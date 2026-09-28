@@ -1,0 +1,10 @@
+uuid: b09e9ef6-52c8-44e2-8274-35ceb02ebb42
+langcode: en
+status: true
+dependencies: {  }
+id: drupaljira
+label: drupaljira
+description: ''
+source_type: null
+module: null
+shared_configuration: null

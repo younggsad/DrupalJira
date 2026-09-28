@@ -2,8 +2,14 @@ uuid: 033b6028-9b05-4ef1-b3e8-2f33c0f961a8
 langcode: en
 status: true
 dependencies:
+  config:
+    - node.type.task
+    - workflows.workflow.task_workflow
   module:
+    - content_moderation
+    - drupaljira_timelog
     - media
+    - node
     - system
 _core:
   default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
@@ -13,4 +19,7 @@ weight: 1
 is_admin: false
 permissions:
   - 'access content'
+  - 'administer time_log'
+  - 'edit any task content'
+  - 'use task_workflow transition reopen'
   - 'view media'

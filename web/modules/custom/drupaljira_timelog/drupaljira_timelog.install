@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * @file
+ * Update hooks for the DrupalJira TimeLog module.
+ */
+
+/**
+ * Initialize Project type and Task moderation state for existing entities.
+ */
+function drupaljira_timelog_update_10001(&$sandbox) {
+  $chunk_size = 2;
+
+  if (!isset($sandbox['initialized'])) {
+    $sandbox['initialized'] = TRUE;
+
+    $sandbox['project_last_nid'] = 0;
+    $sandbox['task_last_nid'] = 0;
+
+    $sandbox['projects_processed'] = 0;
+    $sandbox['projects_updated'] = 0;
+    $sandbox['tasks_processed'] = 0;
+    $sandbox['tasks_updated'] = 0;
+
+    $sandbox['project_finished'] = FALSE;
+    $sandbox['task_finished'] = FALSE;
+  }
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $moderation_storage = \Drupal::entityTypeManager()
+    ->getStorage('content_moderation_state');
+
+  // Process Project nodes in chunks.
+  if (!$sandbox['project_finished']) {
+    $project_ids = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', 'project')
+      ->condition('nid', $sandbox['project_last_nid'], '>')
+      ->sort('nid', 'ASC')
+      ->range(0, $chunk_size)
+      ->execute();
+
+    if (!$project_ids) {
+      $sandbox['project_finished'] = TRUE;
+    }
+    else {
+      /** @var \Drupal\node\NodeInterface[] $projects */
+      $projects = $storage->loadMultiple($project_ids);
+      foreach ($projects as $project) {
+        $sandbox['project_last_nid'] = $project->id();
+        $sandbox['projects_processed']++;
+
+        if (!$project->get('field_project_type')->isEmpty()) {
+          continue;
+        }
+
+        $project->set('field_project_type', 'kanban');
+        $project->save();
+
+        $sandbox['projects_updated']++;
+      }
+
+      if (count($project_ids) < $chunk_size) {
+        $sandbox['project_finished'] = TRUE;
+      }
+    }
+  }
+
+  // Map the old Task status to the new Content Moderation state.
+  $status_map = [
+    'backlog' => 'backlog',
+    'in_progress' => 'in_progress',
+    'review' => 'review',
+    'done' => 'done',
+  ];
+
+  // Process Task nodes in chunks.
+  if (!$sandbox['task_finished']) {
+    $task_ids = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', 'task')
+      ->condition('nid', $sandbox['task_last_nid'], '>')
+      ->sort('nid', 'ASC')
+      ->range(0, $chunk_size)
+      ->execute();
+
+    if (!$task_ids) {
+      $sandbox['task_finished'] = TRUE;
+    }
+    else {
+      /** @var \Drupal\node\NodeInterface[] $tasks */
+      $tasks = $storage->loadMultiple($task_ids);
+      foreach ($tasks as $task) {
+        $sandbox['task_last_nid'] = $task->id();
+        $sandbox['tasks_processed']++;
+
+        // Do not overwrite an already initialized moderation state.
+        $states = $moderation_storage->loadByProperties([
+          'content_entity_type_id' => 'node',
+          'content_entity_id' => $task->id(),
+          'content_entity_revision_id' => $task->getRevisionId(),
+        ]);
+
+        if ($states) {
+          continue;
+        }
+
+        $status = $task->get('field_status')->value;
+
+        if (!isset($status_map[$status])) {
+          continue;
+        }
+
+        $task->set('moderation_state', $status_map[$status]);
+        $task->save();
+
+        $sandbox['tasks_updated']++;
+      }
+
+      if (count($task_ids) < $chunk_size) {
+        $sandbox['task_finished'] = TRUE;
+      }
+    }
+  }
+
+  $sandbox['#finished'] = (
+    $sandbox['project_finished']
+    && $sandbox['task_finished']
+  ) ? 1 : 0;
+
+  if ($sandbox['#finished'] === 1) {
+    return t(
+      'Processed @projects_processed Project nodes and @tasks_processed Task nodes. Updated @projects_updated Projects and @tasks_updated Tasks.',
+      [
+        '@projects_processed' => $sandbox['projects_processed'],
+        '@tasks_processed' => $sandbox['tasks_processed'],
+        '@projects_updated' => $sandbox['projects_updated'],
+        '@tasks_updated' => $sandbox['tasks_updated'],
+      ],
+    );
+  }
+}

@@ -92,6 +92,7 @@ class TaskStatService {
       ->condition('field_project', $project->id())
       ->execute();
 
+    /** @var NodeInterface[] $tasks */
     $tasks = $task_storage->loadMultiple($task_ids);
 
     $task_count = count($tasks);

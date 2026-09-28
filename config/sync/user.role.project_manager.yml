@@ -1,0 +1,17 @@
+uuid: 396f65d7-f9fb-4b4f-9b25-529ae21d308c
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.task
+    - workflows.workflow.task_workflow
+  module:
+    - content_moderation
+    - node
+id: project_manager
+label: 'Project Manager'
+weight: 2
+is_admin: false
+permissions:
+  - 'edit any task content'
+  - 'use task_workflow transition approve'

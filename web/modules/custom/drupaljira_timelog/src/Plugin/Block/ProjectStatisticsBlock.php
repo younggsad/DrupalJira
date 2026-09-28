@@ -2,6 +2,7 @@
 
 namespace Drupal\drupaljira_timelog\Plugin\Block;
 
+use Drupal\Core\Url;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -9,6 +10,8 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\drupaljira_timelog\Service\DurationFormatter;
+use Drupal\drupaljira_timelog\Service\TaskStatService;
 
 /**
  * Provides a Project Statistics block.
@@ -31,12 +34,18 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
    *   The plugin implementation definition.
    * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
    *   The current route match.
+   * @param \Drupal\drupaljira_timelog\Service\TaskStatService $taskStatService
+   *   The task statistics service.
+   * @param \Drupal\drupaljira_timelog\Service\DurationFormatter $durationFormatter
+   *   The duration formatter service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
     protected RouteMatchInterface $routeMatch,
+    protected TaskStatService $taskStatService,
+    protected DurationFormatter $durationFormatter,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -55,6 +64,8 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       $plugin_id,
       $plugin_definition,
       $container->get('current_route_match'),
+      $container->get('drupaljira.task_stat'),
+      $container->get('drupaljira_timelog.duration_formatter'),
     );
   }
 
@@ -68,9 +79,49 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       return [];
     }
 
+    $stats = $this->taskStatService->getProjectStats($project);
+
+    $totalEstimate = (float) $stats['total_estimate'];
+    $totalLogged = (float) $stats['total_logged'];
+    $remaining = (float) $stats['remaining_hours'];
+
     return [
-      '#theme' => 'drupaljira_project_stats',
-      '#project' => $project,
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'project-statistics-wrapper',
+      ],
+      'content' => [
+        '#theme' => 'drupaljira_project_stats',
+        '#project' => $project,
+        '#project_name' => $project->label(),
+        '#total_estimate' => $this->t('Total pledged: @hours', [
+          '@hours' => $this->durationFormatter->format($totalEstimate),
+        ]),
+        '#total_logged' => $this->t('Total logged: @hours', [
+          '@hours' => $this->durationFormatter->format($totalLogged),
+        ]),
+        '#remaining_hours' => $this->t('Remaining: @hours', [
+          '@hours' => $this->durationFormatter->format($remaining),
+        ]),
+        '#tasks_summary' => $this->t('Completed tasks: @done of @total', [
+          '@done' => $stats['done_count'],
+          '@total' => $stats['task_count'],
+        ]),
+        '#over_estimate_count' => $this->t(
+          'Tasks over estimate: @count',
+          [
+            '@count' => $stats['over_estimate_count'],
+          ],
+        ),
+      ],
+      'refresh_link' => [
+        '#type' => 'link',
+        '#title' => $this->t('Refresh statistics'),
+        '#url' => Url::fromRoute('drupaljira_timelog.project_stats', ['node' => $project->id()]),
+        '#attributes' => [
+          'class' => ['use-ajax', 'button', 'button--small'],
+        ],
+      ],
       '#cache' => [
         'contexts' => ['url.path'],
         'tags' => [

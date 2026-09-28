@@ -99,3 +99,14 @@ drupaljira_timelog.write_off:
         type: entity:node
         bundle:
           - task
+
+drupaljira_timelog.project_stats:
+  path: '/drupaljira/project-stats/{node}'
+  defaults:
+    _controller: '\Drupal\drupaljira_timelog\Controller\ProjectStatsController::getStats'
+  requirements:
+    _permission: 'access content'
+  options:
+    parameters:
+      node:
+        type: entity:node

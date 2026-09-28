@@ -8,6 +8,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\drupaljira_timelog\Service\DurationFormatter;
 use Drupal\drupaljira_timelog\Service\TaskStatService;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,6 +35,7 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
     $view_mode,
     array $third_party_settings,
     protected TaskStatService $taskStatService,
+    protected DurationFormatter $durationFormatter,
   ) {
     parent::__construct(
       $plugin_id,
@@ -64,6 +66,7 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('drupaljira.task_stat'),
+      $container->get('drupaljira_timelog.duration_formatter'),
     );
   }
 
@@ -89,30 +92,15 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
       $logged = $estimate - $remaining;
 
       $elements[$delta] = [
-        '#plain_text' => (string) $this->t(
-          '@estimate (@logged written off, @remaining remaining)',
-          [
-            '@estimate' => $this->formatHours($estimate),
-            '@logged' => $this->formatHours($logged),
-            '@remaining' => $this->formatHours($remaining),
-          ],
+        '#plain_text' => $this->durationFormatter->formatSummary(
+          $estimate,
+          $logged,
+          $remaining,
         ),
       ];
     }
 
     return $elements;
-  }
-
-  /**
-   * Formats a decimal number of hours for display.
-   */
-  protected function formatHours(float $hours): string {
-    $formatted = rtrim(
-      rtrim(number_format($hours, 2, '.', ''), '0'),
-      '.',
-    );
-
-    return $formatted . ' ' . ($hours == 1.0 ? 'hour' : 'hours');
   }
 
 }

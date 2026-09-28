@@ -1,0 +1,36 @@
+id: drupaljira_backlog
+label: 'DrupalJira historical backlog'
+migration_group: drupaljira
+
+source:
+  plugin: csv
+  path: modules/custom/drupaljira_timelog/migrations/backlog.csv
+  header_row_count: 1
+  ids:
+    - id
+
+process:
+  title: title
+
+  field_status:
+    plugin: static_map
+    source: status
+    map:
+      todo: backlog
+      working: in_progress
+      qa: review
+      completed: done
+
+  field_estimate: estimate
+
+  field_project:
+    plugin: entity_lookup
+    source: project_name
+    entity_type: node
+    bundle_key: type
+    bundle: project
+    value_key: title
+
+destination:
+  plugin: 'entity:node'
+  default_bundle: task
