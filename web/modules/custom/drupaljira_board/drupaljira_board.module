@@ -18,7 +18,34 @@ function drupaljira_board_node_view_alter(
   NodeInterface $node,
   EntityViewDisplayInterface $display,
 ): void {
-  if ($node->bundle() !== 'task' || $display->getMode() !== 'teaser') {
+  if ($node->bundle() !== 'task') {
+    return;
+  }
+
+  if ($display->getMode() === 'default') {
+    $moderation_information = \Drupal::service(
+      'content_moderation.moderation_information',
+    );
+
+    if ($moderation_information->isModeratedEntity($node)) {
+      $workflow = $moderation_information->getWorkflowForEntity($node);
+
+      if ($workflow) {
+        $state_id = $node->get('moderation_state')->value;
+        $state = $workflow->getTypePlugin()->getState($state_id);
+
+        $build['moderation_state_display'] = [
+          '#type' => 'item',
+          '#title' => t('Status'),
+          '#plain_text' => $state->label(),
+        ];
+      }
+    }
+
+    return;
+  }
+
+  if ($display->getMode() !== 'teaser') {
     return;
   }
 
