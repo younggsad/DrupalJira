@@ -6,6 +6,8 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_preprocess_paragraph().
@@ -40,6 +42,9 @@ function drupaljira_theme_preprocess_views_view_unformatted(array &$variables): 
     'done' => [],
   ];
 
+  $cache_metadata = new CacheableMetadata();
+  $cache_metadata->addCacheTags(['node_list']);
+
   foreach ($variables['rows'] as $index => $row) {
     $result = $variables['view']->result[$index] ?? NULL;
 
@@ -49,15 +54,21 @@ function drupaljira_theme_preprocess_views_view_unformatted(array &$variables): 
 
     $node = $result->_entity;
 
-    if ($node->bundle() !== 'task') {
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'task') {
       continue;
     }
+
+    $cache_metadata->addCacheableDependency($node);
 
     $status = $node->get('field_status')->value;
 
     if (isset($variables['task_board_columns'][$status])) {
       $variables['task_board_columns'][$status][] = $row;
     }
+  }
+
+  if (!empty($variables['view']->element)) {
+    $cache_metadata->applyTo($variables['view']->element);
   }
 }
 

@@ -7,8 +7,28 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function drupaljira_board_entity_presave(ContentEntityInterface $entity): void {
+  if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'task') {
+    return;
+  }
+
+  if (!$entity->hasField('moderation_state') || !$entity->hasField('field_status')) {
+    return;
+  }
+
+  $moderation_state = $entity->get('moderation_state')->value;
+
+  if ($moderation_state !== NULL) {
+    $entity->set('field_status', $moderation_state);
+  }
+}
 
 /**
  * Implements hook_node_view_alter().
