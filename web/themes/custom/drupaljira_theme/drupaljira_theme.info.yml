@@ -4,5 +4,3 @@ description: 'Custom theme for DrupalJira.'
 core_version_requirement: ^11
 base theme: false
 package: DrupalJira
-libraries:
-  - drupaljira_theme/task-board

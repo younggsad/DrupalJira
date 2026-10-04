@@ -7,6 +7,58 @@
         const cards = board.querySelectorAll('.task-card');
         const columns = board.querySelectorAll('.task-board__column');
 
+        const openTaskModal = async (card) => {
+          const taskId = card.dataset.taskId;
+
+          if (!taskId) {
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              Drupal.url(`task/${taskId}/modal`),
+              {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                },
+              },
+            );
+
+            if (!response.ok) {
+              throw new Error('Failed to load task.');
+            }
+
+            const html = await response.text();
+
+            const title =
+              card.querySelector('.node__title, .field--name-title')
+                ?.textContent.trim() || 'Task';
+
+            let dialog;
+
+            dialog = Drupal.dialog(
+              `<div class="task-board__modal-content">${html}</div>`,
+              {
+                title,
+                modal: true,
+                width: '70%',
+                maxWidth: '900px',
+                buttons: [],
+                close() {
+                  dialog.destroy();
+                },
+              },
+            );
+
+            dialog.showModal();
+
+            Drupal.attachBehaviors(dialog.$element[0]);
+          }
+          catch (error) {
+            console.error('DrupalJira Board:', error);
+          }
+        };
+
         cards.forEach((card) => {
           card.addEventListener('dragstart', (event) => {
             const taskId = card.dataset.taskId;
@@ -25,15 +77,11 @@
             card.classList.remove('task-card--dragging');
           });
 
-          card.addEventListener('click', async (event) => {
+          card.addEventListener('click', (event) => {
             if (card.classList.contains('task-card--dragging')) {
               return;
             }
 
-            /*
-             * Do not open the modal when clicking interactive controls.
-             * The card itself, including links inside it, opens the modal.
-             */
             if (
               event.target.closest(
                 'button, input, textarea, select, .frontend-editing-actions',
@@ -44,55 +92,25 @@
 
             event.preventDefault();
 
-            const taskId = card.dataset.taskId;
+            openTaskModal(card);
+          });
 
-            if (!taskId) {
+          card.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
               return;
             }
 
-            try {
-              const response = await fetch(
-                Drupal.url(`task/${taskId}/modal`),
-                {
-                  headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                  },
-                },
-              );
-
-              if (!response.ok) {
-                throw new Error('Failed to load task.');
-              }
-
-              const html = await response.text();
-
-              const title =
-                card.querySelector('.node__title, .field--name-title')
-                  ?.textContent.trim() || 'Task';
-
-              let dialog;
-
-              dialog = Drupal.dialog(
-                `<div class="task-board__modal-content">${html}</div>`,
-                {
-                  title,
-                  modal: true,
-                  width: '70%',
-                  maxWidth: '900px',
-                  buttons: [],
-                  close() {
-                    dialog.destroy();
-                  },
-                },
-              );
-
-              dialog.showModal();
-
-              Drupal.attachBehaviors(dialog.$element[0]);
+            if (
+              event.target.closest(
+                'button, input, textarea, select, .frontend-editing-actions',
+              )
+            ) {
+              return;
             }
-            catch (error) {
-              console.error('DrupalJira Board:', error);
-            }
+
+            event.preventDefault();
+
+            openTaskModal(card);
           });
         });
 
