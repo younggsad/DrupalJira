@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -88,4 +89,58 @@ function drupaljira_board_node_view_alter(
   }
 
   $build['#attributes']['class'][] = 'my-task';
+}
+
+/**
+ * Implements hook_form_node_task_edit_form_alter().
+ */
+function drupaljira_board_form_node_task_edit_form_alter(
+  array &$form,
+  FormStateInterface $form_state,
+): void {
+  $form['#validate'][] = 'drupaljira_board_task_form_validate';
+
+  $validation_sections = [];
+
+  foreach ($form as $key => $element) {
+    if (
+      str_starts_with($key, '#')
+      || $key === 'moderation_state'
+      || $key === 'actions'
+    ) {
+      continue;
+    }
+
+    $validation_sections[] = [$key];
+  }
+
+  $form['actions']['submit']['#limit_validation_errors'] =
+    $validation_sections;
+
+  $default_submit_handlers = $form['actions']['submit']['#submit'] ?? [];
+
+  $form['actions']['change_status'] = [
+    '#type' => 'submit',
+    '#value' => t('Save and change status'),
+    '#button_type' => 'secondary',
+    '#submit' => $default_submit_handlers,
+  ];
+}
+
+/**
+ * Prevents the normal Save button from changing the moderation state.
+ */
+function drupaljira_board_task_form_validate(
+  array &$form,
+  FormStateInterface $form_state,
+): void {
+  $triggering_element = $form_state->getTriggeringElement();
+
+  if (
+    ($triggering_element['#parents'] ?? []) !== ['actions', 'submit']
+  ) {
+    return;
+  }
+
+  $form_state->unsetValue('moderation_state');
 }
