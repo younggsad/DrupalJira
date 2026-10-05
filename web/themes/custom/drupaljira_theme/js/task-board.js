@@ -44,9 +44,6 @@
                 width: 'auto',
                 dialogClass: 'drupaljira-modal-task',
                 buttons: [],
-                close() {
-                  dialog.destroy();
-                },
               },
             );
 

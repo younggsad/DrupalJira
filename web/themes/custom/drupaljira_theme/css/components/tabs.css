@@ -1,0 +1,42 @@
+ul.tabs,
+.task-list-tabs,
+nav.tabs {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 0 0 36px;
+  padding: 0;
+  border-bottom: 1px solid var(--tb-border-subtle);
+}
+
+ul.tabs__tab,
+.tabs li {
+  margin: 0;
+  padding: 0;
+}
+
+ul.tabs__tab a,
+.tabs a {
+  display: inline-block;
+  padding: 14px 4px;
+  color: var(--tb-muted-light);
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s ease;
+}
+
+ul.tabs__tab a:hover,
+.tabs a:hover {
+  color: var(--tb-text);
+  border-bottom-color: #cbd5e1;
+  text-decoration: none;
+}
+
+ul.tabs__tab a.is-active,
+.tabs a.is-active,
+.tabs a.active {
+  color: var(--tb-primary);
+  border-bottom-color: var(--tb-primary);
+}

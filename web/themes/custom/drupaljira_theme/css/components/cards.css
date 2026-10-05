@@ -1,0 +1,75 @@
+.card,
+.node,
+.task-node-card,
+.project-node-card {
+  background: var(--tb-card-bg);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-column);
+  padding: 32px 36px;
+  margin-bottom: 32px;
+  box-shadow: var(--tb-shadow-column);
+  transition: box-shadow 0.2s ease;
+}
+
+.node__title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--tb-border-subtle);
+  letter-spacing: -0.02em;
+}
+
+.node .field {
+  margin-bottom: 20px;
+}
+
+.node .field__label {
+  font-weight: 700;
+  color: var(--tb-muted-light);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+/* Project Type Badges */
+.field--name-field-project-type .field__item {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: var(--tb-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--tb-secondary-light);
+  color: var(--tb-secondary);
+  border: 1px solid rgba(124, 92, 255, 0.15);
+}
+
+/* Status Badges */
+.field--name-field-status .field__item {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: var(--tb-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--tb-primary-light);
+  color: var(--tb-primary);
+  border: 1px solid rgba(10, 101, 228, 0.15);
+}
+
+@media (max-width: 768px) {
+  .card,
+  .node,
+  .task-node-card,
+  .project-node-card {
+    padding: 24px 24px;
+  }
+
+  .node__title {
+    font-size: 24px;
+  }
+}

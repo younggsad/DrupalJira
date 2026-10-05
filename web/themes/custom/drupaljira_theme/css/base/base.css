@@ -1,0 +1,61 @@
+/**
+ * @file
+ * Global base styles for DrupalJira.
+ */
+
+/* Global scrollbar. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 var(--tb-bg);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--tb-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+  border: 2px solid var(--tb-bg);
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--tb-primary);
+}
+
+/* Base document layout. */
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: var(--tb-bg);
+  color: var(--tb-text);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shift during modal transitions. */
+body.ui-dialog-open {
+  overflow: hidden !important;
+  padding-right: var(--scrollbar-width, 0px);
+}

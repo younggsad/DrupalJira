@@ -1,0 +1,62 @@
+.drupaljira-sidebar {
+  width: 270px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+}
+
+.drupaljira-sidebar .block {
+  background: var(--tb-card-bg);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-column);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--tb-shadow-card);
+}
+
+.drupaljira-sidebar .block h2 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tb-muted-light);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--tb-border-subtle);
+}
+
+.drupaljira-sidebar ul.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.drupaljira-sidebar ul.menu li {
+  margin-bottom: 4px;
+}
+
+.drupaljira-sidebar ul.menu a {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: var(--tb-radius-input);
+  color: var(--tb-text);
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.drupaljira-sidebar ul.menu a:hover,
+.drupaljira-sidebar ul.menu a.is-active {
+  background-color: var(--tb-primary-light);
+  color: var(--tb-primary);
+  transform: translateX(4px);
+}
+
+@media (max-width: 1100px) {
+  .drupaljira-sidebar {
+    width: 100%;
+    position: static;
+  }
+}

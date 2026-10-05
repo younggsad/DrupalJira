@@ -1,0 +1,33 @@
+table, .table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--tb-card-bg);
+  border: 1px solid var(--tb-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--tb-shadow-column);
+  margin-bottom: 32px;
+}
+
+th, td {
+  padding: 16px 24px;
+  text-align: left;
+  border-bottom: 1px solid var(--tb-border-subtle);
+}
+
+th {
+  background-color: var(--tb-bg);
+  font-weight: 700;
+  color: var(--tb-muted-light);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: rgba(10, 101, 228, 0.02);
+}
