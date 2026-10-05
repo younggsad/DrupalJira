@@ -5,10 +5,12 @@ namespace Drupal\drupaljira_board\Controller;
 use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\content_moderation\StateTransitionValidationInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -31,19 +33,30 @@ final class TaskBoardController extends ControllerBase {
   protected StateTransitionValidationInterface $transitionValidation;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected RendererInterface $renderer;
+
+  /**
    * Constructs a TaskBoardController object.
    *
    * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
    *   The moderation information service.
    * @param \Drupal\content_moderation\StateTransitionValidationInterface $transition_validation
    *   The moderation transition validation service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
   public function __construct(
     ModerationInformationInterface $moderation_information,
     StateTransitionValidationInterface $transition_validation,
+    RendererInterface $renderer,
   ) {
     $this->moderationInformation = $moderation_information;
     $this->transitionValidation = $transition_validation;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -53,6 +66,7 @@ final class TaskBoardController extends ControllerBase {
     return new static(
       $container->get('content_moderation.moderation_information'),
       $container->get('content_moderation.state_transition_validation'),
+      $container->get('renderer'),
     );
   }
 
@@ -166,14 +180,22 @@ final class TaskBoardController extends ControllerBase {
   /**
    * Renders a Task in the Full view mode for the board modal.
    */
-  public function taskModal(NodeInterface $node): array {
+  public function taskModal(NodeInterface $node): Response {
     if ($node->bundle() !== 'task') {
       throw new NotFoundHttpException();
     }
 
-    return $this->entityTypeManager()
+    $build = $this->entityTypeManager()
       ->getViewBuilder('node')
       ->view($node, 'full');
+
+    return new Response(
+      $this->renderer->renderRoot($build),
+      Response::HTTP_OK,
+      [
+        'Content-Type' => 'text/html; charset=UTF-8',
+      ],
+    );
   }
 
 }

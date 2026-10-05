@@ -1,0 +1,81 @@
+<div class="drupaljira-layout">
+  <header class="drupaljira-header">
+    <div class="drupaljira-header__container">
+      <div class="drupaljira-header__brand">
+        <a href="{{ path('<front>') }}" title="{{ 'Home'|t }}" rel="home" class="drupaljira-header__logo-link">
+          <span class="drupaljira-header__logo-icon">J</span>
+          <span class="drupaljira-header__site-name">Jira</span>
+        </a>
+      </div>
+      <nav class="drupaljira-header__nav" aria-label="{{ 'Main Navigation'|t }}">
+        <ul class="drupaljira-header__menu">
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Product guide</a></li>
+          <li><a href="#">Templates</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Enterprise</a></li>
+        </ul>
+      </nav>
+      <div class="drupaljira-header__actions">
+        <a href="#" class="button button--primary">Get it free</a>
+        <div class="drupaljira-header__user-status">
+          {% if logged_in %}
+            <a href="{{ path('user.page') }}" class="drupaljira-header__user-link">Account</a>
+          {% else %}
+            <a href="{{ path('user.login') }}" class="drupaljira-header__signin">Sign in</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {% if page.header %}
+    <div class="drupaljira-header-region">
+      <div class="drupaljira-header-region__container">
+        {{ page.header }}
+      </div>
+    </div>
+  {% endif %}
+
+  <main role="main" class="drupaljira-main">
+    <div class="drupaljira-main__container">
+      {% if page.breadcrumb %}
+        <div class="drupaljira-breadcrumb">{{ page.breadcrumb }}</div>
+      {% endif %}
+
+      {% if page.highlighted %}
+        <div class="drupaljira-highlighted">{{ page.highlighted }}</div>
+      {% endif %}
+
+      {% if page.help %}
+        <div class="drupaljira-help">{{ page.help }}</div>
+      {% endif %}
+
+      <div class="drupaljira-layout__inner">
+        {% if page.sidebar_first %}
+          <aside class="drupaljira-sidebar drupaljira-sidebar--first" role="complementary">
+            {{ page.sidebar_first }}
+          </aside>
+        {% endif %}
+
+        <div class="drupaljira-content-area">
+          {{ page.content }}
+        </div>
+
+        {% if page.sidebar_second %}
+          <aside class="drupaljira-sidebar drupaljira-sidebar--second" role="complementary">
+            {{ page.sidebar_second }}
+          </aside>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  {% if page.footer %}
+    <footer class="drupaljira-footer" role="contentinfo">
+      <div class="drupaljira-footer__container">
+        {{ page.footer }}
+      </div>
+    </footer>
+  {% endif %}
+</div>

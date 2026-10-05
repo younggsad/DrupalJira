@@ -41,8 +41,8 @@
               {
                 title,
                 modal: true,
-                width: '70%',
-                maxWidth: '900px',
+                width: 'auto',
+                dialogClass: 'drupaljira-modal-task',
                 buttons: [],
                 close() {
                   dialog.destroy();
