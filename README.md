@@ -290,6 +290,13 @@ ddev drush <command>
 
 # Code Quality
 
+## Browser E2E tests
+
+Playwright verifies Drupal through its public UI and HTTP routes. Local DDEV
+fixtures use Drupal's Entity API via Drush and preserve existing site data and
+permissions. See [E2E installation, execution, fixtures, and troubleshooting](docs/e2e.md)
+and the [LLM review](docs/e2e-llm-review.md).
+
 The project uses automated code quality tools:
 
 * Drupal Coder / PHPCS
