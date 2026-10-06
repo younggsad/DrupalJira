@@ -1,0 +1,33 @@
+.paragraph {
+  margin: 24px 0;
+  border-radius: var(--tb-radius-card);
+}
+
+.paragraph--type--callout {
+  padding: 20px 28px;
+  background-color: var(--tb-secondary-light);
+  border-left: 4px solid var(--tb-secondary);
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.08);
+}
+
+.paragraph--type--code {
+  padding: 24px;
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.paragraph--type--text {
+  padding: 16px 0;
+}
+
+.paragraph--type--image img {
+  border-radius: 14px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: var(--tb-shadow-hover);
+}

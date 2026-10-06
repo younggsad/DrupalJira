@@ -1,0 +1,43 @@
+/**
+ * @file
+ * Global design tokens for DrupalJira.
+ */
+
+:root {
+  --tb-bg: #f3f5f7;
+  --tb-card-bg: #ffffff;
+  --tb-border: #ececec;
+  --tb-border-subtle: #f0f2f5;
+  --tb-primary: #0a65e4;
+  --tb-primary-hover: #0852bc;
+  --tb-primary-light: #e7f0fd;
+  --tb-secondary: #7c5cff;
+  --tb-secondary-light: #f6f3ff;
+  --tb-text: #202020;
+  --tb-muted: #5f5f5f;
+  --tb-muted-light: #8c96a3;
+  --tb-success: #039855;
+  --tb-success-light: #ecfdf3;
+  --tb-warning: #f59e0b;
+  --tb-warning-light: #fffbeb;
+  --tb-danger: #d92d20;
+  --tb-danger-light: #fef2f2;
+  --tb-radius-column: 14px;
+  --tb-radius-card: 10px;
+  --tb-radius-input: 8px;
+  --tb-radius-pill: 50px;
+  --tb-shadow-column: 0 1px 9px 0 rgba(0, 0, 0, 0.09);
+  --tb-shadow-card: 0 1px 4.5px 0 rgba(0, 0, 0, 0.09);
+  --tb-shadow-hover: 0 4px 14px 0 rgba(0, 0, 0, 0.12);
+  --tb-shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.22);
+  --tb-shadow-sidebar: -6px 0 28px rgba(0, 0, 0, 0.1);
+  --tb-gap: 24px;
+
+  /* Layering system. */
+  --z-index-header: 1000;
+  --z-index-modal-overlay: 2000;
+  --z-index-modal: 2010;
+  --z-index-off-canvas: 2050;
+  --z-index-dropdown: 1050;
+  --z-index-tooltip: 3000;
+}

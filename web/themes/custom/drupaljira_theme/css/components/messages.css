@@ -1,0 +1,41 @@
+.messages__wrapper,
+.region-highlighted {
+  margin-bottom: 28px;
+}
+
+div.messages {
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: 14.5px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+div.messages--status {
+  background-color: var(--tb-success-light);
+  border-color: rgba(3, 152, 85, 0.15);
+  color: var(--tb-success);
+}
+
+div.messages--error {
+  background-color: var(--tb-danger-light);
+  border-color: rgba(217, 45, 32, 0.15);
+  color: var(--tb-danger);
+}
+
+div.messages--warning {
+  background-color: var(--tb-warning-light);
+  border-color: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
+div.messages--info {
+  background-color: var(--tb-primary-light);
+  border-color: rgba(10, 101, 228, 0.15);
+  color: var(--tb-primary);
+}
