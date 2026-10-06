@@ -8,18 +8,19 @@ import { ignoreHTTPSErrors } from './helpers/environment.mjs';
 
 export const test = base.extend({
   fixtureMedia: [false, { option: true }],
+  journeyPermissions: [false, { option: true, scope: 'worker' }],
   persona: ['anonymous', { option: true }],
   storageState: async ({ personas, persona }, use) => {
     await use(persona === 'anonymous' ? { cookies: [], origins: [] } : personas.states[persona]);
   },
-  personas: [async ({ browser }, use, workerInfo) => {
+  personas: [async ({ browser, journeyPermissions }, use, workerInfo) => {
     const namespace = `worker-${randomUUID()}`;
     const managerPassword = process.env.E2E_MANAGER_PASSWORD || randomBytes(24).toString('hex');
     const userPassword = process.env.E2E_USER_PASSWORD || randomBytes(24).toString('hex');
     const directory = `.playwright/auth/${namespace}`;
     await mkdir(directory, { recursive: true, mode: 0o700 });
     try {
-      const accounts = await drupal('accounts', namespace, { managerPassword, userPassword });
+      const accounts = await drupal('accounts', namespace, { managerPassword, userPassword, journeyPermissions });
       const states = {};
       for (const [persona, password] of [['manager', managerPassword], ['regular', userPassword]]) {
         const context = await browser.newContext({ baseURL: workerInfo.project.use.baseURL, ignoreHTTPSErrors });

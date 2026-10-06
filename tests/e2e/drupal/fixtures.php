@@ -141,6 +141,9 @@ function e2e_cleanup(string $namespace): array {
   foreach ($ledger['entities']['node'] ?? [] as $uuid) {
     $nodes += $manager->getStorage('node')->loadByProperties(['uuid' => $uuid]);
   }
+  foreach ($ledger['ui_nodes'] ?? [] as $values) {
+    $nodes += $manager->getStorage('node')->loadByProperties($values);
+  }
   $tasks = array_filter($nodes, fn($node) => $node->bundle() === 'task');
   if ($tasks) {
     $storage = $manager->getStorage('time_log');
@@ -149,11 +152,15 @@ function e2e_cleanup(string $namespace): array {
     $storage->delete($storage->loadMultiple($ids));
     $manager->getStorage('node')->delete($tasks);
   }
+  $manager->getStorage('node')->delete(array_diff_key($nodes, $tasks));
   foreach (['time_log', 'node', 'media', 'file', 'user'] as $type) {
     $storage = $manager->getStorage($type);
     foreach ($ledger['entities'][$type] ?? [] as $uuid) {
       $storage->delete($storage->loadByProperties(['uuid' => $uuid]));
     }
+  }
+  foreach ($ledger['roles'] ?? [] as $id) {
+    Role::load($id)?->delete();
   }
   foreach ($ledger['files'] ?? [] as $uri) {
     if (!str_starts_with($uri, "public://e2e/$namespace/")) {
@@ -173,10 +180,26 @@ function e2e_cleanup(string $namespace): array {
 }
 
 /**
- * Creates two existing-role personas without changing role configuration.
+ * Creates personas; optional journey permissions use an owned temporary role.
  */
 function e2e_accounts(array $input, array &$ledger): array {
   $accounts = [];
+  $journey_role = NULL;
+  if (!empty($input['journeyPermissions'])) {
+    $journey_role = 'e2e_journeys_' . substr(hash('sha256', $ledger['namespace']), 0, 32);
+    $ledger['roles'][] = $journey_role;
+    \Drupal::state()->set('drupaljira_e2e.' . $ledger['namespace'], $ledger);
+    Role::create([
+      'id' => $journey_role,
+      'label' => 'Temporary E2E journey permissions',
+      'permissions' => [
+        'create project content', 'edit any project content', 'create task content',
+        'use task_workflow transition start_progress',
+        'use task_workflow transition submit_review', 'create time_log',
+        'access media overview',
+      ],
+    ])->save();
+  }
   foreach (['manager' => ['project_manager'], 'regular' => []] as $persona => $roles) {
     $name = 'e2e-' . $persona . '-' . substr(hash('sha256', $ledger['namespace']), 0, 32);
     $password = $input[$persona === 'manager' ? 'managerPassword' : 'userPassword'] ?? '';
@@ -188,7 +211,7 @@ function e2e_accounts(array $input, array &$ledger): array {
       'mail' => $name . '@example.invalid',
       'pass' => $password,
       'status' => 1,
-      'roles' => $roles,
+      'roles' => $persona === 'manager' && $journey_role ? [...$roles, $journey_role] : $roles,
     ], $ledger);
     $accounts[$persona] = ['id' => (int) $user->id(), 'name' => $name];
   }
@@ -212,6 +235,8 @@ function e2e_scenario(array $input, array &$ledger): array {
       throw new RuntimeException('Scenario references an invalid fixture account.');
     }
   }
+  $ledger['users'] = $users;
+  \Drupal::state()->set('drupaljira_e2e.' . $ledger['namespace'], $ledger);
   $result = ['namespace' => $ledger['namespace'], 'projects' => [], 'tasks' => []];
   foreach (['kanban', 'scrum'] as $type) {
     $project = e2e_create('node', $type, [
@@ -256,7 +281,7 @@ function e2e_scenario(array $input, array &$ledger): array {
     $directory = 'public://e2e/' . $ledger['namespace'];
     $file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY);
     $attachments = [];
-    foreach (['image' => 'fixture.png', 'document' => 'fixture.txt'] as $bundle => $filename) {
+    foreach (['image' => 'fixture.png', 'document' => $input['media'] === 'pdf' ? 'fixture.pdf' : 'fixture.txt'] as $bundle => $filename) {
       $uri = "$directory/$filename";
       $ledger['files'][] = $uri;
       \Drupal::state()->set('drupaljira_e2e.' . $ledger['namespace'], $ledger);
@@ -266,7 +291,7 @@ function e2e_scenario(array $input, array &$ledger): array {
         'uid' => $users['manager']['id'],
         'filename' => $filename,
         'uri' => $uri,
-        'filemime' => $bundle === 'image' ? 'image/png' : 'text/plain',
+        'filemime' => $bundle === 'image' ? 'image/png' : ($filename === 'fixture.pdf' ? 'application/pdf' : 'text/plain'),
         'status' => 1,
       ], $ledger);
       $field = $bundle === 'image' ? 'field_media_image' : 'field_media_file';
@@ -288,6 +313,23 @@ function e2e_scenario(array $input, array &$ledger): array {
     $result['media'] = $attachments;
   }
   return $result;
+}
+
+/**
+ * Records exact UI creation intent before submission, including the owner.
+ */
+function e2e_track(array $input, array &$ledger): array {
+  $title = $input['title'] ?? '';
+  $bundle = $input['bundle'] ?? '';
+  if (!in_array($bundle, ['project', 'task'], TRUE)
+    || !str_contains($title, $ledger['namespace']) || empty($ledger['users']['manager']['id'])) {
+    throw new RuntimeException('Invalid UI ownership intent.');
+  }
+  $ledger['ui_nodes'][] = [
+    'type' => $bundle, 'title' => $title, 'uid' => $ledger['users']['manager']['id'],
+  ];
+  \Drupal::state()->set('drupaljira_e2e.' . $ledger['namespace'], $ledger);
+  return ['tracked' => TRUE];
 }
 
 $input_path = $extra[0] ?? '';
@@ -312,6 +354,7 @@ $ledger = \Drupal::state()->get('drupaljira_e2e.' . $namespace, [
 ]);
 $result = match ($input['operation'] ?? '') {
   'accounts' => e2e_accounts($input, $ledger),
+  'track' => e2e_track($input, $ledger),
   'scenario' => e2e_scenario($input, $ledger),
   'cleanup' => e2e_cleanup($namespace),
   'preflight' => ['ready' => TRUE],
