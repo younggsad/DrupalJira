@@ -1,0 +1,19 @@
+{
+  "name": "drupaljira-e2e",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "node tests/e2e/helpers/report-cli.mjs",
+    "e2e:seed": "node tests/e2e/helpers/fixtures-cli.mjs seed",
+    "e2e:reset": "node tests/e2e/helpers/fixtures-cli.mjs reset"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

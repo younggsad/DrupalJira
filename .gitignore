@@ -8,3 +8,8 @@
 .idea/
 
 .gemini/
+/node_modules/
+/.playwright/
+/.env.e2e
+/.env.e2e.*
+!/.env.e2e.example
