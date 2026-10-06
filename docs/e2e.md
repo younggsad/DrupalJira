@@ -259,3 +259,20 @@ No commit or PR was created.
 | 10 | LLM review | PASS — accepted/rejected recommendations in `docs/e2e-llm-review.md`; self-review |
 | 11 | Public interface assertions | PASS — application assertions use HTTP/UI; Entity API only in helpers |
 | 12 | Order independence | PASS — six standalone cases in reverse order, plus 18 parallel repetitions |
+
+## Task 9.2 journeys
+
+The focused Project, Task, board/workflow, Task Media and TimeLog specs document
+coverage in [the Task 9.2 matrix](testing/task-9-2-test-matrix.md). They reuse the
+same scenario, authentication, preflight and cleanup infrastructure.
+
+`journeyPermissions: true` is an opt-in worker option for these specs. It grants
+the fixture manager a temporary non-admin role for creation, early workflow
+transitions, Media browsing and the custom Log time form. Existing smoke personas
+and persistent site roles retain their permissions. `fixtureMedia: 'pdf'` selects
+a PDF document alongside the image; `fixtureMedia: true` continues to use TXT.
+
+UI creation helpers register exact title/bundle/owner intent in the existing
+scenario ledger before submission, including renamed titles before editing.
+Cleanup removes these nodes and dependent TimeLogs as well as seeded entities;
+worker cleanup removes its temporary role after its accounts.

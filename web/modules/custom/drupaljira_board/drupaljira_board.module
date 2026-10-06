@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
@@ -15,8 +15,8 @@ use Drupal\node\NodeInterface;
 /**
  * Implements hook_entity_presave().
  */
-function drupaljira_board_entity_presave(ContentEntityInterface $entity): void {
-  if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'task') {
+function drupaljira_board_entity_presave(EntityInterface $entity): void {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'task') {
     return;
   }
 
@@ -92,39 +92,100 @@ function drupaljira_board_node_view_alter(
 }
 
 /**
+ * Implements hook_form_node_task_form_alter().
+ *
+ * Normal creation saves the workflow default instead of the first available
+ * outgoing transition selected by the moderation widget.
+ */
+function drupaljira_board_form_node_task_form_alter(
+  array &$form,
+  FormStateInterface $form_state,
+): void {
+  drupaljira_board_preserve_task_state($form);
+}
+
+/**
  * Implements hook_form_node_task_edit_form_alter().
  */
 function drupaljira_board_form_node_task_edit_form_alter(
   array &$form,
   FormStateInterface $form_state,
 ): void {
+  drupaljira_board_preserve_task_state($form);
+}
+
+/**
+ * Adds normal Save alongside the original Content Moderation submit action.
+ */
+function drupaljira_board_preserve_task_state(array &$form): void {
+  // Process after all form alters, including Content Moderation's redirect
+  // handler, but before children are processed and submit buttons identified.
+  $form['#process'][] = 'drupaljira_board_task_form_actions';
   $form['#validate'][] = 'drupaljira_board_task_form_validate';
+}
+
+/**
+ * Preserves the original submit action and adds a state-preserving save action.
+ */
+function drupaljira_board_task_form_actions(
+  array $form,
+  FormStateInterface $form_state,
+): array {
+  $form['actions']['save_without_transition'] = $form['actions']['submit'];
+  $form['actions']['save_without_transition']['#value'] = t('Save');
+  $form['actions']['save_without_transition']['#name'] = 'save_without_transition';
+  $form['actions']['save_without_transition']['#weight'] = -5;
 
   $validation_sections = [];
-
   foreach ($form as $key => $element) {
-    if (
-      str_starts_with($key, '#')
-      || $key === 'moderation_state'
-      || $key === 'actions'
-    ) {
+    if (str_starts_with($key, '#') || $key === 'moderation_state' || $key === 'actions') {
       continue;
     }
-
     $validation_sections[] = [$key];
   }
+  // There is no self-transition in this workflow. Normal Save validates all
+  // edited fields except the moderation transition it does not perform.
+  $form['actions']['save_without_transition']['#limit_validation_errors'] = $validation_sections;
 
-  $form['actions']['submit']['#limit_validation_errors'] =
-    $validation_sections;
-
-  $default_submit_handlers = $form['actions']['submit']['#submit'] ?? [];
-
-  $form['actions']['change_status'] = [
-    '#type' => 'submit',
-    '#value' => t('Save and change status'),
-    '#button_type' => 'secondary',
-    '#submit' => $default_submit_handlers,
+  $form['actions']['#id'] = 'drupaljira-task-actions';
+  $form['moderation_state']['widget'][0]['state']['#ajax'] = [
+    'callback' => 'drupaljira_board_task_actions_ajax',
+    'wrapper' => 'drupaljira-task-actions',
   ];
+  return drupaljira_board_task_transition_label($form, $form_state);
+}
+
+/**
+ * Labels Drupal's original submit action with the target state.
+ */
+function drupaljira_board_task_transition_label(
+  array $form,
+  FormStateInterface $form_state,
+): array {
+  $state = $form['moderation_state']['widget'][0]['state'];
+  // The current state may not be a transition target. In that case Drupal's
+  // select renders with the browser selecting its first allowed option.
+  $options = $state['#options'];
+  $input = $form_state->getUserInput();
+  $value = $input['moderation_state'][0]['state'] ?? $state['#default_value'];
+  $label = is_string($value) && isset($options[$value])
+    ? $options[$value] : ($options ? reset($options) : NULL);
+  $form['actions']['submit']['#access'] = ($form['actions']['submit']['#access'] ?? TRUE)
+    && ($state['#access'] ?? TRUE) && $label !== NULL;
+  if ($label !== NULL) {
+    $form['actions']['submit']['#value'] = t('Save as @state', ['@state' => $label]);
+  }
+  return $form;
+}
+
+/**
+ * Refreshes the action label when the moderation widget selection changes.
+ */
+function drupaljira_board_task_actions_ajax(
+  array &$form,
+  FormStateInterface $form_state,
+): array {
+  return $form['actions'];
 }
 
 /**
@@ -137,7 +198,7 @@ function drupaljira_board_task_form_validate(
   $triggering_element = $form_state->getTriggeringElement();
 
   if (
-    ($triggering_element['#parents'] ?? []) !== ['actions', 'submit']
+    ($triggering_element['#name'] ?? '') !== 'save_without_transition'
   ) {
     return;
   }
