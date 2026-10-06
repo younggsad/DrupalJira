@@ -1,0 +1,128 @@
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--tb-card-bg);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-input);
+  color: var(--tb-text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border-color: var(--tb-primary);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(10, 101, 228, 0.1);
+  background-color: #ffffff;
+}
+
+.form-item {
+  margin-bottom: 24px;
+}
+
+label,
+.form-item__label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--tb-text);
+  font-size: 14px;
+}
+
+.description,
+.form-item__description {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--tb-muted-light);
+  line-height: 1.5;
+}
+
+fieldset {
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-column);
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  background: var(--tb-card-bg);
+  box-shadow: var(--tb-shadow-card);
+}
+
+legend {
+  padding: 0 12px;
+  font-weight: 700;
+  color: var(--tb-text);
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--tb-border-subtle);
+}
+
+/* Moderation Form Widget */
+.entity-moderation-form,
+.field--name-moderation-state {
+  background: var(--tb-primary-light);
+  border: 1px solid rgba(10, 101, 228, 0.15);
+  border-radius: var(--tb-radius-card);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+/* Media Library field widget. */
+.field--widget-media-library-widget {
+  margin-bottom: 24px;
+}
+
+.field--widget-media-library-widget > fieldset {
+  margin: 0;
+  padding: 14px 24px;
+}
+
+.field--widget-media-library-widget > fieldset > legend {
+  margin-bottom: 0px;
+}
+
+.field--widget-media-library-widget > fieldset > .fieldset-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.field--widget-media-library-widget .field-prefix {
+  display: block;
+  margin: 0;
+  color: var(--tb-muted-light);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.field--widget-media-library-widget .js-media-library-selection {
+  width: 100%;
+}
+
+.field--widget-media-library-widget .field-suffix {
+  display: block;
+  margin: 0;
+}
+
+.field--widget-media-library-widget .js-media-library-open-button {
+  width: auto;
+  margin: 0;
+}

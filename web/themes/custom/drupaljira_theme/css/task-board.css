@@ -3,23 +3,6 @@
  * Task board styling aligned with Figma Project Dashboard design tokens.
  */
 
-:root {
-  --tb-bg: #f8f9fb;
-  --tb-card-bg: #ffffff;
-  --tb-border: #e1e4ea;
-  --tb-primary: #7c5cff;
-  --tb-primary-light: #f6f3ff;
-  --tb-drag-over-bg: #f1efff;
-  --tb-text: #252a34;
-  --tb-muted: #8a919d;
-  --tb-radius-column: 10px;
-  --tb-radius-card: 8px;
-  --tb-shadow-column: 0 1px 2px rgb(0 0 0 / 4%);
-  --tb-shadow-card: 0 1px 2px rgb(0 0 0 / 5%);
-  --tb-shadow-hover: 0 4px 12px rgb(0 0 0 / 8%);
-  --tb-gap: 20px;
-}
-
 .task-board__columns {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -29,16 +12,13 @@
 
 .task-board__column {
   min-width: 0;
-  min-height: 280px;
-  padding: 16px;
+  min-height: 400px;
+  padding: 20px;
   background: var(--tb-bg);
   border: 1px solid var(--tb-border);
   border-radius: var(--tb-radius-column);
   box-shadow: var(--tb-shadow-column);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .task-board__column-title {
@@ -46,20 +26,22 @@
   align-items: center;
   justify-content: space-between;
   min-height: 24px;
-  margin: 0 0 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--tb-border);
+  margin: 0 0 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--tb-border-subtle);
   color: var(--tb-text);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   line-height: 1.4;
 }
 
 .task-board__cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-height: 120px;
+  gap: 16px;
+  min-height: 200px;
 }
 
 .task-board__cards > * {
@@ -71,33 +53,37 @@
  */
 .task-card {
   position: relative;
-  padding: 14px;
+  padding: 18px 20px;
   background: var(--tb-card-bg);
   border: 1px solid var(--tb-border);
   border-radius: var(--tb-radius-card);
   box-shadow: var(--tb-shadow-card);
   cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
 }
 
 .task-card:hover {
-  border-color: var(--tb-primary);
+  border-color: rgba(10, 101, 228, 0.3);
   box-shadow: var(--tb-shadow-hover);
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  background-color: #fcfdfe;
 }
 
 .task-card:focus-visible {
   outline: 2px solid var(--tb-primary);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(10, 101, 228, 0.15);
 }
 
 .task-card.my-task {
-  border-left: 4px solid var(--tb-primary);
+  border-left: 5px solid var(--tb-primary);
   background: var(--tb-primary-light);
-  box-shadow: 0 2px 8px rgb(124 92 255 / 15%);
+  box-shadow: 0 4px 12px rgba(10, 101, 228, 0.1);
+}
+
+.task-card.my-task:hover {
+  background-color: #f1f7ff;
 }
 
 .task-card:active {
@@ -112,27 +98,34 @@
 
 .task-card a:hover {
   color: var(--tb-primary);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .task-card .node__title {
-  margin: 0 0 8px;
-  font-size: 15px;
+  margin: 0 0 12px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.4;
+  color: var(--tb-text);
+  letter-spacing: -0.01em;
 }
 
 .task-card .field {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--tb-text);
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--tb-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .task-card .field__label {
-  font-weight: 500;
-  color: var(--tb-muted);
-  margin-right: 4px;
-  display: inline-block;
+  font-weight: 700;
+  color: var(--tb-muted-light);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin: 0;
 }
 
 .task-card .field__items,
@@ -143,76 +136,99 @@
 .task-card .field--name-field-body {
   font-size: 13px;
   color: var(--tb-muted);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /*
  * Drag & drop.
  */
 .task-card--dragging {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: grabbing;
-  transform: rotate(1deg);
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
 }
 
 .task-board__column--drag-over {
-  background: var(--tb-drag-over-bg);
+  background: var(--tb-primary-light);
   border-color: var(--tb-primary);
-  box-shadow: inset 0 0 0 1px var(--tb-primary);
+  box-shadow: inset 0 0 0 2px var(--tb-primary), var(--tb-shadow-hover);
+  transform: scale(1.01);
 }
 
 /*
- * Modal content.
+ * Modal content override for board.
  */
 .task-board__modal-content {
-  max-height: 70vh;
+  max-height: 75vh;
   overflow-y: auto;
-  padding: 4px;
+  padding: 8px;
 }
 
 .task-board__modal-content .node {
   max-width: 100%;
+  margin: 0;
+  box-shadow: none;
+  border: none;
+  padding: 0;
 }
 
 /*
  * Empty columns.
  */
 .task-board__cards:empty::before {
-  display: block;
-  padding: 28px 12px;
-  color: var(--tb-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: var(--tb-muted-light);
   font-size: 14px;
+  font-weight: 500;
   text-align: center;
-  content: 'No tasks';
+  content: 'No tasks yet';
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px dashed var(--tb-border);
+  border-radius: var(--tb-radius-card);
 }
 
 /*
  * Responsive layout (Desktop, Tablet 768px, Mobile 375px).
  */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .task-board__columns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
   }
 }
 
 @media (max-width: 768px) {
   .task-board__columns {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
   }
 
   .task-board__column {
-    min-height: 200px;
-    padding: 12px;
+    min-height: 150px;
+    padding: 16px;
+  }
+
+  .task-board__cards {
+    gap: 12px;
   }
 }
 
 @media (max-width: 375px) {
   .task-board__column {
-    padding: 10px;
+    padding: 12px;
   }
 
   .task-card {
-    padding: 10px;
+    padding: 14px 16px;
   }
 }

@@ -1,0 +1,95 @@
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+.action-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: var(--tb-card-bg);
+  color: var(--tb-text);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-input);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--tb-shadow-card);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  line-height: 1.4;
+  outline: none;
+}
+
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+.action-links a:hover {
+  background-color: #fcfdfe;
+  border-color: #d0d7de;
+  color: var(--tb-text);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.button:active,
+button:active {
+  transform: translateY(0);
+}
+
+.button:focus-visible,
+button:focus-visible,
+input[type="submit"]:focus-visible,
+.action-links a:focus-visible {
+  box-shadow: 0 0 0 3px rgba(10, 101, 228, 0.25);
+  border-color: var(--tb-primary);
+}
+
+.button--primary,
+input[type="submit"].button--primary,
+button.button--primary,
+.action-links a {
+  background-color: var(--tb-primary);
+  border-color: var(--tb-primary);
+  color: #ffffff;
+  border-radius: var(--tb-radius-pill);
+  padding: 11px 24px;
+  box-shadow: 0 4px 14px rgba(10, 101, 228, 0.3);
+}
+
+.button--primary:hover,
+input[type="submit"].button--primary:hover,
+button.button--primary:hover,
+.action-links a:hover {
+  background-color: var(--tb-primary-hover);
+  border-color: var(--tb-primary-hover);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(10, 101, 228, 0.4);
+}
+
+.button--danger,
+.button--delete {
+  background-color: var(--tb-danger);
+  border-color: var(--tb-danger);
+  color: #ffffff;
+}
+
+.button--danger:hover,
+.button--delete:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(217, 45, 32, 0.3);
+}
+
+/* Action Links Container */
+ul.action-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  gap: 16px;
+}
