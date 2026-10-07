@@ -1,0 +1,141 @@
+/* Drupal details and vertical tabs share the input/card visual language. */
+.drupaljira-content-area details,
+body.path-frontend-editing details {
+  margin-block: var(--tb-space-12);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+}
+
+.drupaljira-content-area details > summary,
+body.path-frontend-editing details > summary {
+  padding: var(--tb-space-12) var(--tb-space-16);
+  color: var(--tb-heading);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.drupaljira-content-area details > .details-wrapper,
+body.path-frontend-editing details > .details-wrapper {
+  padding: var(--tb-space-16);
+  border-top: 1px solid var(--tb-border);
+}
+
+.details-wrapper > .form-item:last-child {
+  margin-bottom: 0;
+}
+
+.drupaljira-content-area .vertical-tabs,
+body.path-frontend-editing .vertical-tabs {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  margin: var(--tb-space-20) 0;
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+}
+
+.vertical-tabs::after {
+  display: none;
+}
+
+.drupaljira-content-area .vertical-tabs__menu,
+body.path-frontend-editing .vertical-tabs__menu {
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: var(--tb-space-6);
+  border: 0;
+  border-inline-end: 1px solid var(--tb-border);
+  background: var(--tb-bg);
+  border-start-start-radius: var(--tb-radius-card);
+  border-end-start-radius: var(--tb-radius-card);
+}
+
+.vertical-tabs .vertical-tabs__menu-item {
+  margin: var(--tb-space-4) 0;
+  border: 0;
+  background: transparent;
+}
+
+.vertical-tabs .vertical-tabs__menu-item a {
+  padding: var(--tb-space-12);
+  border-radius: var(--tb-radius-input);
+  color: var(--tb-text-secondary);
+  line-height: 1.5;
+}
+
+.vertical-tabs .vertical-tabs__menu-item a:hover {
+  outline: none;
+  background: var(--tb-secondary-light);
+}
+
+.vertical-tabs .vertical-tabs__menu-item.is-selected a {
+  background: var(--tb-card-bg);
+  box-shadow: var(--tb-shadow-card);
+  color: var(--tb-primary);
+}
+
+.vertical-tabs .vertical-tabs__menu-item-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+}
+
+.vertical-tabs .vertical-tabs__menu-item-summary {
+  margin-top: var(--tb-space-4);
+  font-size: 12px;
+  color: var(--tb-muted);
+  overflow-wrap: anywhere;
+}
+
+.vertical-tabs .vertical-tabs__panes {
+  min-width: 0;
+}
+
+.drupaljira-content-area .vertical-tabs__pane,
+body.path-frontend-editing .vertical-tabs__pane {
+  margin: 0;
+  padding: var(--tb-space-20);
+  border: 0;
+  background: transparent;
+}
+
+.drupaljira-content-area .vertical-tabs__pane > .details-wrapper,
+body.path-frontend-editing .vertical-tabs__pane > .details-wrapper {
+  padding: 0;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .drupaljira-content-area .vertical-tabs,
+  body.path-frontend-editing .vertical-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .drupaljira-content-area .vertical-tabs__menu,
+  body.path-frontend-editing .vertical-tabs__menu {
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--tb-border);
+  }
+}
+
+/* Core details renders children directly when no details wrapper is supplied. */
+.drupaljira-content-area details:not(.vertical-tabs__pane) > .form-item,
+.drupaljira-content-area details:not(.vertical-tabs__pane) > .form-wrapper,
+body.path-frontend-editing details:not(.vertical-tabs__pane) > .form-item,
+body.path-frontend-editing details:not(.vertical-tabs__pane) > .form-wrapper {
+  margin-inline: var(--tb-space-16);
+}
+
+details:not(.vertical-tabs__pane)[open] > summary {
+  border-bottom: 1px solid var(--tb-border);
+  margin-bottom: var(--tb-space-16);
+}
+
+.vertical-tabs__menu-item a:focus-visible {
+  outline: 2px solid var(--tb-primary);
+  outline-offset: -2px;
+}

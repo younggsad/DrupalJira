@@ -56,6 +56,12 @@ body {
 
 /* Prevent layout shift during modal transitions. */
 body.ui-dialog-open {
-  overflow: hidden !important;
+  overflow: hidden;
   padding-right: var(--scrollbar-width, 0px);
 }
+
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--tb-primary); outline-offset: 3px; }
+img { max-width: 100%; }
+.skip-link { position: absolute; inset-inline-start: 16px; top: -100px; z-index: var(--z-index-tooltip); background: white; padding: 12px; }
+.skip-link:focus { top: 8px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: 0.01ms; transition-duration: 0.01ms; } }

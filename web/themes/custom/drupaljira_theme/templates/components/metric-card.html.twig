@@ -1,0 +1,7 @@
+{# Data boundary: text is a translated, backend-generated metric; icon is optional. #}
+<li class="metric-card">
+  {% if icon %}
+    <span class="metric-card__icon"><img src="/{{ directory }}/assets/figma/{{ icon }}.svg" alt="" width="29" height="29"></span>
+  {% endif %}
+  <span>{{ text }}</span>
+</li>

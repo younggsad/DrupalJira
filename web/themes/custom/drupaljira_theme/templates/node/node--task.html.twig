@@ -4,7 +4,7 @@
  * Theme override for a task node.
  */
 #}
-<article{{ attributes.addClass('task-node-card') }}>
+<article{{ attributes.addClass('node', 'node--type-task', 'task-node-card') }}>
   {{ title_prefix }}
   {% if not page %}
     <h2{{ title_attributes.addClass('node__title') }}>

@@ -13,6 +13,24 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 
 /**
+ * Implements hook_theme().
+ */
+function drupaljira_board_theme(): array {
+  return [
+    'drupaljira_projects' => [
+      'variables' => [
+        'projects' => [],
+        'tasks' => [],
+        'authenticated' => FALSE,
+        'create_project' => [],
+        'sign_in' => [],
+        'pager' => [],
+      ],
+    ],
+  ];
+}
+
+/**
  * Implements hook_entity_presave().
  */
 function drupaljira_board_entity_presave(EntityInterface $entity): void {

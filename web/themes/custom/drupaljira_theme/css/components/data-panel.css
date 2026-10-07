@@ -1,0 +1,18 @@
+.data-panel {
+  padding: var(--tb-space-16) 18px;
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+  box-shadow: var(--tb-shadow-card);
+}
+
+.data-panel__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tb-heading);
+  margin-bottom: var(--tb-space-20);
+}
+
+.data-panel__empty {
+  color: var(--tb-text-secondary);
+  margin: 0;
+}

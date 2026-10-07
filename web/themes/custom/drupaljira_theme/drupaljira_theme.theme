@@ -7,7 +7,221 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function drupaljira_theme_preprocess_html(array &$variables): void {
+  $route_match = \Drupal::routeMatch();
+  $route = $route_match->getRouteName();
+  $cache = new CacheableMetadata();
+  $cache->addCacheContexts(['route', 'url.path', 'user.permissions']);
+  $titles = isset($variables['head_title']['title']) ? [$variables['head_title']['title']] : [];
+  $request = \Drupal::request();
+
+  // Preserve Drupal's error titles rather than exposing denied entity names.
+  if (!$request->attributes->has('_exception_statuscode')) {
+    $generic = [
+      'drupaljira_board.projects' => t('Projects'),
+      'user.login' => t('Login'),
+      'entity.time_log.collection' => t('Time Logs'),
+      'entity.time_log.add_form' => t('Create Time Log'),
+      'entity.time_log.admin_add_form' => t('Create Time Log'),
+    ];
+    if (isset($generic[$route])) {
+      $titles = [$generic[$route]];
+    }
+
+    $node = $route_match->getParameter('node');
+    $task = $route_match->getParameter('task');
+    if ($task instanceof NodeInterface && $task->bundle() === 'task') {
+      $node = $task;
+    }
+    $time_log = $route_match->getParameter('time_log');
+    if ($time_log instanceof ContentEntityInterface && $time_log->getEntityTypeId() === 'time_log') {
+      $log_access = $time_log->access('view', NULL, TRUE);
+      $cache->addCacheableDependency($log_access);
+      $cache->addCacheableDependency($time_log);
+      $field = $time_log->get('task');
+      $field_access = $field->access('view', NULL, TRUE);
+      $cache->addCacheableDependency($field_access);
+      if ($log_access->isAllowed() && $field_access->isAllowed() && $field->entity instanceof NodeInterface) {
+        $node = $field->entity;
+      }
+    }
+    if ($route === 'view.task_board.page_1') {
+      $id = $route_match->getParameter('arg_0');
+      if (is_scalar($id) && ctype_digit((string) $id)) {
+        $node = \Drupal::entityTypeManager()->getStorage('node')->load($id);
+      }
+    }
+    if ($route === 'frontend_editing.form' && $route_match->getParameter('type') === 'node') {
+      $id = $route_match->getParameter('id');
+      if (is_scalar($id) && ctype_digit((string) $id)) {
+        $node = \Drupal::entityTypeManager()->getStorage('node')->load($id);
+      }
+    }
+
+    if ($node instanceof NodeInterface && in_array($node->bundle(), ['project', 'task'], TRUE)) {
+      $access = $node->access('view', NULL, TRUE);
+      $cache->addCacheableDependency($access);
+      $cache->addCacheableDependency($node);
+      if ($access->isAllowed()) {
+        if ($route === 'entity.node.canonical') {
+          $titles = [$node->label()];
+        }
+        elseif (in_array($route, ['entity.node.edit_form', 'frontend_editing.form'], TRUE)) {
+          $titles = [t('Edit @name', ['@name' => $node->label()])];
+        }
+        elseif ($route === 'entity.node.delete_form') {
+          $titles = [t('Delete @name', ['@name' => $node->label()])];
+        }
+        elseif ($route === 'view.task_board.page_1' && $node->bundle() === 'project') {
+          $titles = [t('@project — Board', ['@project' => $node->label()])];
+        }
+        elseif ($route === 'drupaljira_board.project_sprints' && $node->bundle() === 'project') {
+          $titles = [t('Sprints'), $node->label()];
+        }
+        elseif ($route === 'drupaljira_timelog.write_off') {
+          $titles = [t('Time Log'), $node->label()];
+        }
+        elseif ($route === 'entity.time_log.canonical') {
+          $titles = [t('Time Log'), $node->label()];
+        }
+        elseif ($route === 'entity.time_log.edit_form') {
+          $titles = [t('Edit Time Log'), $node->label()];
+        }
+        elseif ($route === 'entity.time_log.delete_form') {
+          $titles = [t('Delete Time Log'), $node->label()];
+        }
+
+        if ($node->bundle() === 'task') {
+          $field = $node->get('field_project');
+          $field_access = $field->access('view', NULL, TRUE);
+          $cache->addCacheableDependency($field_access);
+          $project = $field->entity;
+          if ($field_access->isAllowed() && $project instanceof NodeInterface && $project->bundle() === 'project') {
+            $project_access = $project->access('view', NULL, TRUE);
+            $cache->addCacheableDependency($project_access);
+            $cache->addCacheableDependency($project);
+            if ($project_access->isAllowed()) {
+              $titles[] = $project->label();
+            }
+          }
+        }
+      }
+    }
+
+    if ($route === 'node.add') {
+      $type = $route_match->getParameter('node_type');
+      if ($type && $type->id() === 'project') {
+        $titles = [t('Create Project')];
+      }
+      elseif ($type && $type->id() === 'task') {
+        $titles = [t('Create Task')];
+      }
+    }
+  }
+
+  // Translated placeholders are already escaped; safe_join must escape their
+  // plain text once, while entity labels remain ordinary untrusted strings.
+  $variables['head_title'] = array_map(static function ($title) {
+    return $title instanceof TranslatableMarkup ? Html::decodeEntities((string) $title) : $title;
+  }, $titles);
+  $variables['head_title'][] = 'DrupalJira';
+  $cache->applyTo($variables['page']);
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function drupaljira_theme_preprocess_page(array &$variables): void {
+  // Resolve optional sidebar blocks before checking whether the region is
+  // empty. Lazy placeholders have no text yet, even for accessible menus.
+  // Their cache metadata still bubbles through the normal render pipeline.
+  foreach (['sidebar_first', 'sidebar_second'] as $region) {
+    if (!isset($variables['page'][$region])) {
+      continue;
+    }
+    foreach (Element::children($variables['page'][$region]) as $key) {
+      if (isset($variables['page'][$region][$key]['#lazy_builder'])) {
+        $variables['page'][$region][$key]['#create_placeholder'] = FALSE;
+      }
+    }
+  }
+  $route_match = \Drupal::routeMatch();
+  $cache = new CacheableMetadata();
+  $cache->addCacheContexts(['route', 'url.path', 'user.permissions', 'user.roles:authenticated']);
+  $variables['jira_navigation'] = [];
+  $variables['jira_project_navigation'] = [];
+  $variables['jira_create'] = [];
+
+  $links = [
+    ['jira_navigation', t('Projects'), 'drupaljira_board.projects', []],
+    ['jira_navigation', t('Content'), 'system.admin_content', []],
+    ['jira_navigation', t('Create project'), 'node.add', ['node_type' => 'project']],
+    ['jira_create', t('Create task'), 'node.add', ['node_type' => 'task']],
+  ];
+  $node = $route_match->getParameter('node');
+  if (!$node instanceof NodeInterface && $route_match->getRouteName() === 'view.task_board.page_1') {
+    $project_id = $route_match->getParameter('arg_0');
+    if (is_scalar($project_id) && ctype_digit((string) $project_id)) {
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($project_id);
+    }
+  }
+  $project = NULL;
+  if ($node instanceof NodeInterface) {
+    $cache->addCacheableDependency($node);
+    if ($node->bundle() === 'project') {
+      $project = $node;
+    }
+    elseif ($node->bundle() === 'task' && !$node->get('field_project')->isEmpty()) {
+      $project = $node->get('field_project')->entity;
+    }
+  }
+  if ($project instanceof NodeInterface && $project->bundle() === 'project') {
+    $access = $project->access('view', NULL, TRUE);
+    $cache->addCacheableDependency($project);
+    $cache->addCacheableDependency($access);
+    if ($access->isAllowed()) {
+      $variables['jira_project_name'] = $project->label();
+      $links[] = ['jira_project_navigation', t('Project'), 'entity.node.canonical', ['node' => $project->id()]];
+      $links[] = ['jira_project_navigation', t('Task Board'), 'view.task_board.page_1', ['arg_0' => $project->id()]];
+      $links[] = [
+        'jira_project_navigation',
+        t('Sprints'),
+        'drupaljira_board.project_sprints',
+        ['node' => $project->id()],
+      ];
+    }
+  }
+  foreach ($links as [$group, $label, $route, $parameters]) {
+    $url = Url::fromRoute($route, $parameters);
+    $access = $url->access(NULL, TRUE);
+    $cache->addCacheableDependency($access);
+    if (!$access->isAllowed()) {
+      continue;
+    }
+    $variables[$group][] = [
+      '#type' => 'link',
+      '#title' => $label,
+      '#url' => $url,
+      '#attributes' => [
+        'class' => $group === 'jira_create' ? ['button', 'button--primary'] : [],
+      ],
+      '#options' => ['set_active_class' => TRUE],
+    ];
+  }
+  $variables['jira_is_sprint'] = $route_match->getRouteName() === 'drupaljira_board.project_sprints';
+  // Render this carrier explicitly so access metadata bubbles from Twig.
+  $variables['jira_navigation_cache'] = ['#markup' => ''];
+  $cache->applyTo($variables['jira_navigation_cache']);
+}
 
 /**
  * Implements hook_preprocess_paragraph().
@@ -47,6 +261,11 @@ function drupaljira_theme_preprocess_views_view_unformatted(array &$variables): 
   $cache_metadata = new CacheableMetadata();
   $cache_metadata->addCacheContexts(['user']);
   $cache_metadata->addCacheTags(['node_list']);
+
+  $create_url = Url::fromRoute('node.add', ['node_type' => 'task']);
+  $create_access = $create_url->access(NULL, TRUE);
+  $cache_metadata->addCacheableDependency($create_access);
+  $variables['task_board_create_url'] = $create_access->isAllowed() ? $create_url : NULL;
 
   foreach ($variables['rows'] as $index => $row) {
     $result = $variables['view']->result[$index] ?? NULL;

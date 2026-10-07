@@ -1,0 +1,35 @@
+<div class="projects-page">
+  <div class="projects-page__intro">
+    <p>{{ 'Open a project to view its board, tasks, and progress.'|t }}</p>
+    {% if create_project %}{{ create_project }}{% endif %}
+    {% if not authenticated %}{{ sign_in }}{% endif %}
+  </div>
+
+  {% if projects %}
+    <div class="projects-page__grid">
+      {% for project in projects %}
+        {% include '@drupaljira_theme/components/project-card.html.twig' with {project: project} only %}
+      {% endfor %}
+    </div>
+    {{ pager }}
+  {% else %}
+    <section class="application-empty" aria-label="{{ 'Projects'|t }}">
+      <h2>{{ 'No projects available'|t }}</h2>
+      <p>{{ 'Projects you have access to will appear here.'|t }}</p>
+      {% if create_project %}{{ create_project }}{% endif %}
+    </section>
+  {% endif %}
+
+  {% if authenticated %}
+    <section class="projects-page__tasks" aria-labelledby="assigned-tasks-title">
+      <h2 id="assigned-tasks-title">{{ 'Your tasks'|t }}</h2>
+      {% if tasks %}
+        <ul class="projects-page__task-list">
+          {% for task in tasks %}<li>{{ task }}</li>{% endfor %}
+        </ul>
+      {% else %}
+        <p class="application-empty__message">{{ 'No tasks are currently assigned to you.'|t }}</p>
+      {% endif %}
+    </section>
+  {% endif %}
+</div>
