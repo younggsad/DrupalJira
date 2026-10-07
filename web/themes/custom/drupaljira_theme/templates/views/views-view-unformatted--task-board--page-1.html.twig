@@ -1,20 +1,31 @@
 <div class="task-board__columns">
   {% set columns = {
-    'backlog': 'Backlog',
-    'in_progress': 'In Progress',
-    'review': 'Review',
-    'done': 'Done'
+    'backlog': 'Backlog'|t,
+    'in_progress': 'In Progress'|t,
+    'review': 'Review'|t,
+    'done': 'Done'|t
   } %}
 
   {% for status, title in columns %}
-    <section class="task-board__column" data-status="{{ status }}">
-      <h2 class="task-board__column-title">{{ title }}</h2>
+    <section class="task-board__column{% if not task_board_columns[status] %} task-board__column--empty{% endif %}" data-status="{{ status }}">
+      <div class="task-board__column-header">
+        <h2 class="task-board__column-title">{{ title }}</h2>
+        <span class="task-board__count" aria-label="{{ 'Task count'|t }}">{{ task_board_columns[status]|length }}</span>
+      </div>
 
       <div class="task-board__cards">
         {% for row in task_board_columns[status] %}
           {{ row.content }}
         {% endfor %}
       </div>
+      {% if status == 'backlog' and task_board_create_url %}
+        <a href="{{ task_board_create_url }}" class="task-board__create">
+          <img src="/{{ directory }}/assets/figma/plus.svg" alt="" width="16" height="16">{{ 'Create task'|t }}
+        </a>
+      {% endif %}
+      <p class="task-board__empty"{% if task_board_columns[status] %} hidden{% endif %}>{{ 'No tasks yet'|t }}</p>
     </section>
   {% endfor %}
 </div>
+
+<p class="task-board__feedback" role="status" aria-live="polite"></p>

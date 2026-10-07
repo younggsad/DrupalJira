@@ -1,3 +1,11 @@
+drupaljira_board.projects:
+  path: '/projects'
+  defaults:
+    _controller: '\Drupal\drupaljira_board\Controller\ProjectsController::page'
+    _title: 'Projects'
+  requirements:
+    _access: 'TRUE'
+
 drupaljira_board.update_status:
   path: '/task/{node}/status'
   defaults:

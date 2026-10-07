@@ -3,14 +3,14 @@ table, .table {
   border-collapse: collapse;
   background: var(--tb-card-bg);
   border: 1px solid var(--tb-border);
-  border-radius: 14px;
+  border-radius: var(--tb-radius-card);
   overflow: hidden;
   box-shadow: var(--tb-shadow-column);
   margin-bottom: 32px;
 }
 
 th, td {
-  padding: 16px 24px;
+  padding: 8px 20px;
   text-align: left;
   border-bottom: 1px solid var(--tb-border-subtle);
 }
@@ -20,8 +20,8 @@ th {
   font-weight: 700;
   color: var(--tb-muted-light);
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+
+
 }
 
 tr:last-child td {
@@ -31,3 +31,6 @@ tr:last-child td {
 tr:hover td {
   background-color: rgba(10, 101, 228, 0.02);
 }
+
+.table-scroll { max-width: 100%; overflow-x: auto; margin-bottom: var(--tb-space-24); }
+.table-scroll:focus-visible { outline: 2px solid var(--tb-primary); }

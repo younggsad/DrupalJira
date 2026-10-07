@@ -1,47 +1,42 @@
-/* Project Statistics */
-
 .project-statistics {
-  background: var(--tb-card-bg);
-  border: 1px solid var(--tb-border);
-  border-radius: var(--tb-radius-column);
-  padding: 32px;
-  margin-bottom: 32px;
-  box-shadow: var(--tb-shadow-column);
+  margin-bottom: var(--tb-space-24);
 }
 
 .project-statistics__project {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  color: var(--tb-text);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 16px;
+  color: var(--tb-heading);
 }
 
 .project-statistics__list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: var(--tb-space-20);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .project-statistics__list li {
-  background: var(--tb-bg);
+  background: var(--tb-card-bg);
   border: 1px solid var(--tb-border);
-  border-radius: 14px;
-  padding: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--tb-text);
+  border-radius: var(--tb-radius-card);
+  padding: var(--tb-space-20);
+  color: var(--tb-muted);
   box-shadow: var(--tb-shadow-card);
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.project-statistics__list li:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: var(--tb-primary-light);
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--tb-space-20);
+}
+
+.metric-card__icon {
+  display: flex;
+  flex: 0 0 55px;
+  height: 55px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 60px;
+  background: var(--tb-border);
 }

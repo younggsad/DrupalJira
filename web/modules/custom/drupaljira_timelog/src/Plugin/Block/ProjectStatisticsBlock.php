@@ -3,6 +3,7 @@
 namespace Drupal\drupaljira_timelog\Plugin\Block;
 
 use Drupal\Core\Url;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -72,6 +73,14 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
   /**
    * {@inheritdoc}
    */
+  public function getCacheContexts(): array {
+    // Empty output on non-project routes must not hide later project output.
+    return Cache::mergeContexts(parent::getCacheContexts(), ['route', 'url.path']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function build(): array {
     $project = $this->getProjectFromRoute();
 
@@ -126,6 +135,9 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
         'contexts' => ['url.path'],
         'tags' => [
           'drupaljira_project_stats:' . $project->id(),
+          'node:' . $project->id(),
+          'node_list',
+          'time_log_list',
         ],
       ],
     ];

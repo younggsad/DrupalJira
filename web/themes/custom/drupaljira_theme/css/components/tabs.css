@@ -2,7 +2,8 @@ ul.tabs,
 .task-list-tabs,
 nav.tabs {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: var(--tb-space-16);
   list-style: none;
   margin: 0 0 36px;
   padding: 0;
@@ -24,7 +25,7 @@ ul.tabs__tab a,
   font-size: 14px;
   border-bottom: 3px solid transparent;
   margin-bottom: -1px;
-  transition: all 0.2s ease;
+  transition: color 150ms ease, border-color 150ms ease;
 }
 
 ul.tabs__tab a:hover,

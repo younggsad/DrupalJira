@@ -1,0 +1,11 @@
+{# Figma widget surface 14:7207. Content must be a real Drupal render array. #}
+<section class="data-panel" aria-label="{{ title }}">
+  <h2 class="data-panel__title">{{ title }}</h2>
+  {% block content %}
+    {% if content %}
+      {{ content }}
+    {% else %}
+      <p class="data-panel__empty">{{ empty_message }}</p>
+    {% endif %}
+  {% endblock %}
+</section>

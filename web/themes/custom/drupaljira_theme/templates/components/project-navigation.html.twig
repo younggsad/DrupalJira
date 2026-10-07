@@ -1,0 +1,6 @@
+<nav aria-label="{{ 'Project navigation'|t }}">
+  <p class="drupaljira-sidebar__title">{{ jira_project_name }}</p>
+  <ul class="menu">
+    {% for link in jira_project_navigation %}<li>{{ link }}</li>{% endfor %}
+  </ul>
+</nav>

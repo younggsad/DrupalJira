@@ -1,0 +1,19 @@
+.account-card {
+  max-width: 75ch;
+  padding: var(--tb-space-20);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+  box-shadow: var(--tb-shadow-card);
+}
+
+.account-card .field + .field {
+  margin-top: var(--tb-space-16);
+}
+
+.account-card .field__label {
+  margin-bottom: var(--tb-space-6);
+  color: var(--tb-muted);
+  font-size: 12px;
+  font-weight: 500;
+}

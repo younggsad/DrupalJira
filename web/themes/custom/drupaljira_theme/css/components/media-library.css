@@ -1,0 +1,73 @@
+/* Native media-library controls keep their Drupal selection/AJAX contracts. */
+.media-library-widget-modal .js-media-library-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tb-space-8);
+  list-style: none;
+  margin: 0 0 var(--tb-space-20);
+  padding: 0 0 var(--tb-space-12);
+  border-bottom: 1px solid var(--tb-border);
+}
+
+.media-library-widget-modal .js-media-library-menu a {
+  display: block;
+  padding: var(--tb-space-8) var(--tb-space-16);
+  border-radius: var(--tb-radius-button);
+  color: var(--tb-text-secondary);
+}
+
+.media-library-widget-modal .js-media-library-menu a.active {
+  background: var(--tb-primary-light);
+  color: var(--tb-primary);
+}
+
+.media-library-widget-modal .views-exposed-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--tb-space-16);
+  margin-block: var(--tb-space-20);
+}
+
+.media-library-widget-modal .views-exposed-form .form-item {
+  margin: 0;
+}
+
+.media-library-widget-modal .views-exposed-form .form-actions {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.media-library-widget-modal .views-display-link {
+  display: inline-block;
+  margin-inline-end: var(--tb-space-12);
+  padding-block: var(--tb-space-8);
+}
+
+.media-preview {
+  padding: var(--tb-space-12);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+}
+
+.media-preview__image img {
+  display: block;
+  max-height: 160px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.media-preview__name {
+  margin-top: var(--tb-space-8);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .media-library-widget-modal .views-exposed-form {
+    grid-template-columns: 1fr;
+  }
+}
