@@ -10,7 +10,9 @@ dependencies:
     - field.field.node.task.field_project
     - field.field.node.task.field_status
     - node.type.task
+    - workflows.workflow.task_workflow
   module:
+    - content_moderation
     - drupaljira_timelog
     - media_library
     - text
@@ -27,7 +29,7 @@ content:
     third_party_settings: {  }
   field_assignee:
     type: entity_reference_autocomplete
-    weight: 7
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
@@ -37,7 +39,7 @@ content:
     third_party_settings: {  }
   field_attachments:
     type: media_library_widget
-    weight: 8
+    weight: 7
     region: content
     settings:
       media_types: {  }
@@ -54,7 +56,7 @@ content:
     third_party_settings: {  }
   field_estimate:
     type: hours_minutes
-    weight: 9
+    weight: 8
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -68,9 +70,9 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-  field_status:
-    type: options_select
-    weight: 6
+  moderation_state:
+    type: moderation_state_default
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -100,5 +102,6 @@ content:
       placeholder: ''
     third_party_settings: {  }
 hidden:
+  field_status: true
   promote: true
   sticky: true

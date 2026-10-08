@@ -12,7 +12,6 @@ dependencies:
     - node.type.task
   module:
     - drupaljira_timelog
-    - options
     - text
     - user
 id: node.task.default
@@ -20,6 +19,11 @@ targetEntityType: node
 bundle: task
 mode: default
 content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
   field_assignee:
     type: entity_reference_label
     label: above
@@ -42,7 +46,7 @@ content:
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 1
+    weight: 2
     region: content
   field_estimate:
     type: time_summary
@@ -57,18 +61,12 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 2
-    region: content
-  field_status:
-    type: list_default
-    label: above
-    settings: {  }
-    third_party_settings: {  }
     weight: 3
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 0
+    weight: 1
     region: content
-hidden: {  }
+hidden:
+  field_status: true
