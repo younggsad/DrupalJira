@@ -63,7 +63,11 @@ function e2e_preflight(array $input): void {
     || !$manager->hasPermission('use task_workflow transition approve')
     || $authenticated->hasPermission('use task_workflow transition approve')
     || !$authenticated->hasPermission('edit any task content')
-    || !$authenticated->hasPermission('administer time_log')) {
+    || $authenticated->hasPermission('administer time_log')
+    || !$authenticated->hasPermission('create time_log')
+    || !$authenticated->hasPermission('view time_log')
+    || !$authenticated->hasPermission('edit time_log')
+    || !$authenticated->hasPermission('delete time_log')) {
     throw new RuntimeException('Existing persona permissions differ from the E2E contract.');
   }
   foreach (['task', 'uid', 'hours', 'log_date', 'notes', 'over_estimate_reason'] as $field) {
@@ -195,14 +199,30 @@ function e2e_accounts(array $input, array &$ledger): array {
       'permissions' => [
         'create project content', 'edit any project content', 'create task content',
         'use task_workflow transition start_progress',
-        'use task_workflow transition submit_review', 'create time_log',
+        'use task_workflow transition submit_review',
         'access media overview',
       ],
     ])->save();
   }
-  foreach (['manager' => ['project_manager'], 'regular' => []] as $persona => $roles) {
+  $personas = ['manager' => ['project_manager'], 'regular' => []];
+  if (!empty($input['timeLogAdmin'])) {
+    $admin_role = 'e2e_timelog_admin_' . substr(hash('sha256', $ledger['namespace']), 0, 32);
+    $ledger['roles'][] = $admin_role;
+    \Drupal::state()->set('drupaljira_e2e.' . $ledger['namespace'], $ledger);
+    Role::create([
+      'id' => $admin_role,
+      'label' => 'Temporary E2E TimeLog administrator',
+      'permissions' => ['administer time_log', 'bypass node access'],
+    ])->save();
+    $personas['admin'] = [$admin_role];
+  }
+  foreach ($personas as $persona => $roles) {
     $name = 'e2e-' . $persona . '-' . substr(hash('sha256', $ledger['namespace']), 0, 32);
-    $password = $input[$persona === 'manager' ? 'managerPassword' : 'userPassword'] ?? '';
+    $password = $input[match ($persona) {
+      'manager' => 'managerPassword',
+      'admin' => 'adminPassword',
+      default => 'userPassword',
+    }] ?? '';
     if (strlen($password) < 16) {
       throw new RuntimeException('Fixture passwords must be at least 16 characters.');
     }
@@ -267,7 +287,7 @@ function e2e_scenario(array $input, array &$ledger): array {
       throw new RuntimeException('Board status synchronization failed.');
     }
   }
-  e2e_create('time_log', 'log', [
+  $time_log = e2e_create('time_log', 'log', [
     'task' => $result['tasks']['backlog']['id'],
     'uid' => $users['regular']['id'],
     'hours' => '2.00',
@@ -276,6 +296,50 @@ function e2e_scenario(array $input, array &$ledger): array {
     'over_estimate_reason' => '',
     'created' => 1577923200,
   ], $ledger);
+  $result['timeLog'] = (int) $time_log->id();
+  if (!empty($input['timeLogSecurity'])) {
+    if (empty($users['admin'])) {
+      throw new RuntimeException('Private fixtures require the owned TimeLog administrator.');
+    }
+    // Validate private references as the fixture administrator, not anonymous
+    // Drush. Keep entity-reference validation enabled for all fixtures.
+    $switcher = \Drupal::service('account_switcher');
+    $switcher->switchTo(\Drupal::entityTypeManager()->getStorage('user')->load($users['admin']['id']));
+    try {
+      $private_project = e2e_create('node', 'private-project', [
+        'type' => 'project',
+        'title' => 'E2E private project ' . $ledger['namespace'],
+        'uid' => $users['manager']['id'],
+        'status' => 0,
+        'field_project_type' => 'kanban',
+      ], $ledger);
+      $result['security'] = ['privateProject' => (int) $private_project->id()];
+      foreach ([
+        'privateTask' => [$result['projects']['kanban'], 'draft'],
+        'taskInPrivateProject' => [$private_project->id(), 'backlog'],
+      ] as $key => [$project_id, $state]) {
+        $task = e2e_create('node', $key, [
+          'type' => 'task',
+          'title' => 'E2E ' . $key . ' ' . $ledger['namespace'],
+          'uid' => $users['manager']['id'],
+          'field_project' => $project_id,
+          'field_estimate' => '99.00',
+          'moderation_state' => $state,
+        ], $ledger);
+        $result['security'][$key] = (int) $task->id();
+        $log = e2e_create('time_log', $key . '-log', [
+          'task' => $task->id(),
+          'uid' => $users['regular']['id'],
+          'hours' => '42.00',
+          'log_date' => '2020-01-02',
+        ], $ledger);
+        $result['security'][$key . 'Log'] = (int) $log->id();
+      }
+    }
+    finally {
+      $switcher->switchBack();
+    }
+  }
   if (!empty($input['media'])) {
     $file_system = \Drupal::service('file_system');
     $directory = 'public://e2e/' . $ledger['namespace'];

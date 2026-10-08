@@ -3,6 +3,7 @@
 namespace Drupal\drupaljira_timelog\Plugin\ReportGenerator;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Http\Exception\CacheableAccessDeniedHttpException;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\drupaljira_timelog\Attribute\ReportGenerator;
 use Drupal\drupaljira_timelog\ReportGeneratorInterface;
@@ -66,10 +67,14 @@ final class OverdueTasksReport implements
    * {@inheritdoc}
    */
   public function generate(NodeInterface $project): array {
+    $access = $this->taskStatService->getProjectAccess($project);
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException($access);
+    }
     $task_storage = $this->entityTypeManager->getStorage('node');
 
     $task_ids = $task_storage->getQuery()
-      ->accessCheck(FALSE)
+      ->accessCheck(TRUE)
       ->condition('type', 'task')
       ->condition('field_project', $project->id())
       ->execute();
@@ -82,6 +87,9 @@ final class OverdueTasksReport implements
     $overdue_tasks = [];
 
     foreach ($tasks as $task) {
+      if (!$this->taskStatService->getTaskAccess($task)->isAllowed()) {
+        continue;
+      }
       $remaining_estimate = $this->taskStatService->getRemainingEstimate($task);
 
       if ($remaining_estimate >= 0) {

@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace Drupal\drupaljira_timelog\Form;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Http\Exception\CacheableAccessDeniedHttpException;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\drupaljira_timelog\Event\TimeLogCreatedEvent;
+use Drupal\drupaljira_timelog\Access\TimeLogAccessCheck;
+use Drupal\node\NodeInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -60,6 +65,7 @@ final class TimeLogWriteOffForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
+    $this->getAccessibleTask();
     $form['hours'] = [
       '#type' => 'number',
       '#title' => $this->t('Hours'),
@@ -150,7 +156,12 @@ final class TimeLogWriteOffForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $task = $this->currentRouteMatch->getParameter('task');
+    $task = $this->getAccessibleTask();
+    $access = $this->entityTypeManager->getAccessControlHandler('time_log')
+      ->createAccess(NULL, $this->currentUser, [], TRUE);
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException(CacheableMetadata::createFromObject($access));
+    }
     $values = $form_state->getValues();
 
     /** @var \Drupal\drupaljira_timelog\TimeLogInterface $time_log */
@@ -183,6 +194,21 @@ final class TimeLogWriteOffForm extends FormBase {
       'entity.node.canonical',
       ['node' => $task->id()]
     );
+  }
+
+  /**
+   * Rechecks the referenced task before displaying or submitting the form.
+   */
+  private function getAccessibleTask(): NodeInterface {
+    $task = $this->currentRouteMatch->getParameter('task');
+    if (!$task instanceof NodeInterface || $task->bundle() !== 'task') {
+      throw new NotFoundHttpException();
+    }
+    $access = TimeLogAccessCheck::logTimeAccess($task, $this->currentUser);
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException($access);
+    }
+    return $task;
   }
 
 }

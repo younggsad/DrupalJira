@@ -5,6 +5,8 @@ namespace Drupal\drupaljira_timelog\Controller;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Http\Exception\CacheableAccessDeniedHttpException;
+use Drupal\drupaljira_timelog\Access\TimeLogAccessCheck;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockManagerInterface;
@@ -44,6 +46,10 @@ final class ProjectStatsController extends ControllerBase {
    *   The AJAX response.
    */
   public function getStats(NodeInterface $node): AjaxResponse {
+    $access = TimeLogAccessCheck::projectStatsAccess($node, $this->currentUser());
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException($access);
+    }
     $block_plugin = $this->blockManager->createInstance('project_statistics', []);
     $render_array = $block_plugin->build();
 

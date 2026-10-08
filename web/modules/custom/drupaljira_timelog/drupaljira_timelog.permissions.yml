@@ -2,10 +2,10 @@ administer time_log:
   title: 'Administer time logs'
   restrict access: true
 view time_log:
-  title: 'View time log'
+  title: 'View time logs and statistics for accessible tasks and projects'
 edit time_log:
-  title: 'Edit time log'
+  title: 'Edit own time logs'
 delete time_log:
-  title: 'Delete time log'
+  title: 'Delete own time logs'
 create time_log:
   title: 'Create time log'
