@@ -7,7 +7,6 @@ namespace Drupal\drupaljira_timelog\Entity;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Attribute\ContentEntityType;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -16,6 +15,7 @@ use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\drupaljira_timelog\Form\TimeLogForm;
+use Drupal\drupaljira_timelog\Form\TimeLogDeleteForm;
 use Drupal\drupaljira_timelog\TimeLogAccessControlHandler;
 use Drupal\drupaljira_timelog\TimeLogInterface;
 use Drupal\drupaljira_timelog\TimeLogListBuilder;
@@ -44,7 +44,7 @@ use Drupal\views\EntityViewsData;
     'form' => [
       'add' => TimeLogForm::class,
       'edit' => TimeLogForm::class,
-      'delete' => ContentEntityDeleteForm::class,
+      'delete' => TimeLogDeleteForm::class,
       'delete-multiple-confirm' => DeleteMultipleForm::class,
     ],
     'route_provider' => [

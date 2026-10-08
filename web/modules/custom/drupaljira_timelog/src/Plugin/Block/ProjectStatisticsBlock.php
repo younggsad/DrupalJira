@@ -4,6 +4,7 @@ namespace Drupal\drupaljira_timelog\Plugin\Block;
 
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -75,7 +76,9 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
    */
   public function getCacheContexts(): array {
     // Empty output on non-project routes must not hide later project output.
-    return Cache::mergeContexts(parent::getCacheContexts(), ['route', 'url.path']);
+    return Cache::mergeContexts(parent::getCacheContexts(), [
+      'route', 'url.path', 'user', 'user.permissions', 'user.node_grants:view',
+    ]);
   }
 
   /**
@@ -88,13 +91,24 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
       return [];
     }
 
-    $stats = $this->taskStatService->getProjectStats($project);
+    $access = $this->taskStatService->getProjectAccess($project);
+    $node = $this->routeMatch->getParameter('node');
+    if ($node instanceof NodeInterface && $node->bundle() === 'task') {
+      $access = $access->andIf($this->taskStatService->getTaskAccess($node));
+    }
+    $cache = CacheableMetadata::createFromObject($access);
+    if (!$access->isAllowed()) {
+      $build = ['#access' => $access];
+      $cache->applyTo($build);
+      return $build;
+    }
+    $stats = $this->taskStatService->getProjectStats($project, $cache);
 
     $totalEstimate = (float) $stats['total_estimate'];
     $totalLogged = (float) $stats['total_logged'];
     $remaining = (float) $stats['remaining_hours'];
 
-    return [
+    $build = [
       '#type' => 'container',
       '#attributes' => [
         'id' => 'project-statistics-wrapper',
@@ -129,6 +143,7 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
         '#url' => Url::fromRoute('drupaljira_timelog.project_stats', ['node' => $project->id()]),
         '#attributes' => [
           'class' => ['use-ajax', 'button', 'button--small'],
+          'data-ajax-http-method' => 'GET',
         ],
       ],
       '#cache' => [
@@ -141,6 +156,8 @@ final class ProjectStatisticsBlock extends BlockBase implements ContainerFactory
         ],
       ],
     ];
+    CacheableMetadata::createFromRenderArray($build)->merge($cache)->applyTo($build);
+    return $build;
   }
 
   /**

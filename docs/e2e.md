@@ -96,11 +96,26 @@ each namespace, while namespaces isolate runs, workers, tests, and retries.
 
 The existing Project Manager can approve Review → Done. Regular authenticated
 users can edit any Task and reopen Review/Done → In Progress, but cannot approve.
-Both inherit `administer time_log`. Neither existing role grants
-`create time_log`, `start_progress`, or `submit_review`. Consequently the
-dedicated `/task/{id}/log-time` form is inaccessible with these personas even
-though the generic TimeLog administration routes are accessible. Tests preserve
-this current permission contract rather than expanding it.
+Both inherit scoped TimeLog create/view permissions and may edit/delete their
+own logs. Neither has `administer time_log`; the administrative collection is
+denied. The dedicated `/task/{id}/log-time` form requires an accessible Task
+and Project. Neither persistent role grants `start_progress` or `submit_review`.
+Tests preserve those workflow restrictions.
+
+`timeLogAdmin: true` optionally provisions a separate TimeLog administrator
+account with an owned temporary role; it does not expand manager/regular
+permissions or use UID 1. `timeLogSecurity: true` adds an unpublished Project,
+an unpublished draft Task, a published Task under the unpublished Project, and
+their logs. The draft exercises the existing workflow's draft state; its board
+status limitation from H3 is intentionally outside this access-control fix.
+All added accounts, roles, and entities use the existing ownership ledger and
+cleanup. The scenario manifest exposes `timeLog` and optional `security` IDs.
+
+`timelog-access.spec.mjs` checks anonymous denial, non-owner GET/POST denial,
+owner edit/delete and forged-owner input, administrator edit/delete, inaccessible
+references, visibility-filtered statistics and AJAX refresh, and removed debug
+endpoints. Time summaries are tested with authorized authenticated users;
+anonymous users retain public Task/Media viewing without TimeLog statistics.
 
 Task setup sets `moderation_state`; the existing board presave hook synchronizes
 `field_status`. Setup skips only the moderation transition constraint when
@@ -267,8 +282,9 @@ coverage in [the Task 9.2 matrix](testing/task-9-2-test-matrix.md). They reuse t
 same scenario, authentication, preflight and cleanup infrastructure.
 
 `journeyPermissions: true` is an opt-in worker option for these specs. It grants
-the fixture manager a temporary non-admin role for creation, early workflow
-transitions, Media browsing and the custom Log time form. Existing smoke personas
+the fixture manager a temporary non-admin role for content creation, early
+workflow transitions and Media browsing. Time logging uses the persistent scoped
+permissions. Existing smoke personas
 and persistent site roles retain their permissions. `fixtureMedia: 'pdf'` selects
 a PDF document alongside the image; `fixtureMedia: true` continues to use TXT.
 

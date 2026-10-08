@@ -2,7 +2,12 @@
 
 namespace Drupal\drupaljira_timelog\Service;
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Http\Exception\CacheableAccessDeniedHttpException;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\drupaljira_timelog\Access\TimeLogAccessCheck;
 use Drupal\node\NodeInterface;
 
 /**
@@ -22,8 +27,24 @@ class TaskStatService {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
+    protected AccountProxyInterface $account,
   ) {
     $this->entityTypeManager = $entityTypeManager;
+  }
+
+  /**
+   * Returns cacheable access to a task's time statistics.
+   */
+  public function getTaskAccess(NodeInterface $task): AccessResult {
+    return TimeLogAccessCheck::statisticsPermissionAccess($this->account)
+      ->andIf(TimeLogAccessCheck::taskViewAccess($task, $this->account));
+  }
+
+  /**
+   * Returns cacheable access to a project's time statistics.
+   */
+  public function getProjectAccess(NodeInterface $project): AccessResult {
+    return TimeLogAccessCheck::projectStatsAccess($project, $this->account);
   }
 
   /**
@@ -31,15 +52,22 @@ class TaskStatService {
    *
    * @param \Drupal\node\NodeInterface $task
    *   The task node.
+   * @param \Drupal\Core\Cache\CacheableMetadata|null $cache
+   *   Optional cache metadata carrier for the statistics.
    *
    * @return float
    *   The total logged hours.
    */
-  public function getLoggedHours(NodeInterface $task): float {
+  public function getLoggedHours(NodeInterface $task, ?CacheableMetadata $cache = NULL): float {
+    $access = $this->getTaskAccess($task);
+    $cache?->addCacheableDependency($access);
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException($access);
+    }
     $time_log_storage = $this->entityTypeManager->getStorage('time_log');
 
     $time_log_ids = $time_log_storage->getQuery()
-      ->accessCheck(FALSE)
+      ->accessCheck(TRUE)
       ->condition('task', $task->id())
       ->execute();
 
@@ -53,7 +81,11 @@ class TaskStatService {
     $total_logged = 0.0;
 
     foreach ($time_logs as $time_log) {
-      $total_logged += (float) $time_log->get('hours')->value;
+      $log_access = $time_log->access('view', $this->account, TRUE);
+      $cache?->addCacheableDependency($log_access);
+      if ($log_access->isAllowed()) {
+        $total_logged += (float) $time_log->get('hours')->value;
+      }
     }
 
     return $total_logged;
@@ -64,14 +96,17 @@ class TaskStatService {
    *
    * @param \Drupal\node\NodeInterface $task
    *   The task node.
+   * @param \Drupal\Core\Cache\CacheableMetadata|null $cache
+   *   Optional cache metadata carrier for the statistics.
    *
    * @return float
    *   The remaining estimate. A negative value means the estimate was exceeded.
    */
-  public function getRemainingEstimate(NodeInterface $task): float {
+  public function getRemainingEstimate(NodeInterface $task, ?CacheableMetadata $cache = NULL): float {
+    $logged = $this->getLoggedHours($task, $cache);
     $estimate = (float) $task->get('field_estimate')->value;
 
-    return $estimate - $this->getLoggedHours($task);
+    return $estimate - $logged;
   }
 
   /**
@@ -79,15 +114,24 @@ class TaskStatService {
    *
    * @param \Drupal\node\NodeInterface $project
    *   The project node.
+   * @param \Drupal\Core\Cache\CacheableMetadata|null $cache
+   *   Optional cache metadata carrier for the statistics.
    *
    * @return array
    *   The project statistics.
    */
-  public function getProjectStats(NodeInterface $project): array {
+  public function getProjectStats(NodeInterface $project, ?CacheableMetadata $cache = NULL): array {
+    $access = $this->getProjectAccess($project);
+    $cache?->addCacheableDependency($access);
+    $cache?->addCacheContexts(['user', 'user.permissions', 'user.node_grants:view']);
+    $cache?->addCacheTags(['node_list:task', 'time_log_list']);
+    if (!$access->isAllowed()) {
+      throw new CacheableAccessDeniedHttpException($access);
+    }
     $task_storage = $this->entityTypeManager->getStorage('node');
 
     $task_ids = $task_storage->getQuery()
-      ->accessCheck(FALSE)
+      ->accessCheck(TRUE)
       ->condition('type', 'task')
       ->condition('field_project', $project->id())
       ->execute();
@@ -95,13 +139,19 @@ class TaskStatService {
     /** @var NodeInterface[] $tasks */
     $tasks = $task_storage->loadMultiple($task_ids);
 
-    $task_count = count($tasks);
+    $task_count = 0;
     $done_count = 0;
     $total_estimate = 0.0;
     $total_logged = 0.0;
     $over_estimate_count = 0;
 
     foreach ($tasks as $task) {
+      $task_access = $this->getTaskAccess($task);
+      $cache?->addCacheableDependency($task_access);
+      if (!$task_access->isAllowed()) {
+        continue;
+      }
+      $task_count++;
       if ($task->get('field_status')->value === 'done') {
         $done_count++;
       }
@@ -109,7 +159,7 @@ class TaskStatService {
       $estimate = (float) $task->get('field_estimate')->value;
       $total_estimate += $estimate;
 
-      $logged_hours = $this->getLoggedHours($task);
+      $logged_hours = $this->getLoggedHours($task, $cache);
       $total_logged += $logged_hours;
 
       if ($estimate - $logged_hours < 0) {

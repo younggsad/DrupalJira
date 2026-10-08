@@ -6,11 +6,47 @@ namespace Drupal\drupaljira_timelog;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
+use Drupal\Core\Cache\CacheableMetadata;
 
 /**
  * Provides a list controller for the time log entity type.
  */
 final class TimeLogListBuilder extends EntityListBuilder {
+
+  /**
+   * Cacheability of allowed and denied records in the current listing.
+   */
+  private ?CacheableMetadata $accessMetadata = NULL;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function load(): array {
+    // Custom entity queries do not implement per-record access filtering.
+    $this->accessMetadata = new CacheableMetadata();
+    $this->accessMetadata->addCacheContexts(['user', 'user.permissions', 'user.node_grants:view']);
+    $this->accessMetadata->addCacheTags(['node_list']);
+    $entities = [];
+    foreach (parent::load() as $id => $entity) {
+      $access = $entity->access('view', NULL, TRUE);
+      $this->accessMetadata->addCacheableDependency($access);
+      if ($access->isAllowed()) {
+        $entities[$id] = $entity;
+      }
+    }
+    return $entities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render(): array {
+    $build = parent::render();
+    if ($this->accessMetadata) {
+      CacheableMetadata::createFromRenderArray($build)->merge($this->accessMetadata)->applyTo($build);
+    }
+    return $build;
+  }
 
   /**
    * {@inheritdoc}

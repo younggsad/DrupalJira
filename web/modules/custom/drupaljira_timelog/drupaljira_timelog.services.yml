@@ -4,6 +4,7 @@ services:
     class: Drupal\drupaljira_timelog\Service\TaskStatService
     arguments:
       - '@entity_type.manager'
+      - '@current_user'
 
   plugin.manager.report_generator:
     class: Drupal\drupaljira_timelog\ReportGeneratorManager

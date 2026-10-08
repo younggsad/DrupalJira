@@ -9,20 +9,25 @@ import { ignoreHTTPSErrors } from './helpers/environment.mjs';
 export const test = base.extend({
   fixtureMedia: [false, { option: true }],
   journeyPermissions: [false, { option: true, scope: 'worker' }],
+  timeLogAdmin: [false, { option: true, scope: 'worker' }],
+  timeLogSecurity: [false, { option: true }],
   persona: ['anonymous', { option: true }],
   storageState: async ({ personas, persona }, use) => {
     await use(persona === 'anonymous' ? { cookies: [], origins: [] } : personas.states[persona]);
   },
-  personas: [async ({ browser, journeyPermissions }, use, workerInfo) => {
+  personas: [async ({ browser, journeyPermissions, timeLogAdmin }, use, workerInfo) => {
     const namespace = `worker-${randomUUID()}`;
     const managerPassword = process.env.E2E_MANAGER_PASSWORD || randomBytes(24).toString('hex');
     const userPassword = process.env.E2E_USER_PASSWORD || randomBytes(24).toString('hex');
+    const adminPassword = randomBytes(24).toString('hex');
     const directory = `.playwright/auth/${namespace}`;
     await mkdir(directory, { recursive: true, mode: 0o700 });
     try {
-      const accounts = await drupal('accounts', namespace, { managerPassword, userPassword, journeyPermissions });
+      const accounts = await drupal('accounts', namespace, { managerPassword, userPassword, journeyPermissions, timeLogAdmin, adminPassword });
       const states = {};
-      for (const [persona, password] of [['manager', managerPassword], ['regular', userPassword]]) {
+      const credentials = [['manager', managerPassword], ['regular', userPassword]];
+      if (timeLogAdmin) credentials.push(['admin', adminPassword]);
+      for (const [persona, password] of credentials) {
         const context = await browser.newContext({ baseURL: workerInfo.project.use.baseURL, ignoreHTTPSErrors });
         try {
           await loginWithDiagnostics(
@@ -41,10 +46,10 @@ export const test = base.extend({
       finally { await rm(directory, { recursive: true, force: true }); }
     }
   }, { scope: 'worker', timeout: 180_000 }],
-  scenario: async ({ personas, fixtureMedia }, use) => {
+  scenario: async ({ personas, fixtureMedia, timeLogSecurity }, use) => {
     const namespace = `test-${randomUUID()}`;
     try {
-      await use(await drupal('scenario', namespace, { users: personas.accounts, media: fixtureMedia }));
+      await use(await drupal('scenario', namespace, { users: personas.accounts, media: fixtureMedia, timeLogSecurity }));
     } finally { await drupal('cleanup', namespace); }
   },
 });

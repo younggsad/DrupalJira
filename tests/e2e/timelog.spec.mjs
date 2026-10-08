@@ -1,7 +1,8 @@
 import { test, expect } from './fixtures.mjs';
+import { baseURL, ignoreHTTPSErrors } from './helpers/environment.mjs';
 
-test.use({ persona: 'manager', journeyPermissions: true });
-test('Custom Log time form persists decimal hours and updates Task statistics', async ({ page, scenario }) => {
+test.use({ persona: 'manager', journeyPermissions: true, timeLogAdmin: true });
+test('Custom Log time form persists decimal hours and updates Task statistics', async ({ page, scenario, personas, browser }) => {
   const task = scenario.tasks.backlog;
   await page.goto(`/node/${task.id}`);
   await expect(page.getByRole('article')).toContainText('8 ч. (2 ч. written off, 6 ч. remaining)');
@@ -15,14 +16,19 @@ test('Custom Log time form persists decimal hours and updates Task statistics', 
   await expect(page).toHaveURL(new RegExp(`/node/${task.id}$`));
   await page.reload();
   await expect(page.getByRole('article')).toContainText('8 ч. (3.25 ч. written off, 4.75 ч. remaining)');
-  await page.goto('/admin/content/time-log');
-  const lastPage = page.getByRole('link', { name: 'Last page', exact: true });
-  // The theme's pager link has an overlapping pointer hit area. Activate
-  // its real keyboard UI while retaining all saved-row assertions.
-  if (await lastPage.isVisible()) await lastPage.press('Enter');
-  const row = page.getByRole('row').filter({ hasText: task.title }).filter({ hasText: '1.25' });
-  await expect(row).toContainText('2020-01-03');
-  await page.reload();
-  await expect(row).toContainText('1.25');
-  await expect(row).toContainText(`UI time ${scenario.namespace}`);
+  const denied = await page.request.get('/admin/content/time-log');
+  expect(denied.status()).toBe(403);
+  const context = await browser.newContext({ baseURL, ignoreHTTPSErrors, storageState: personas.states.admin });
+  try {
+    const adminPage = await context.newPage();
+    await adminPage.goto('/admin/content/time-log');
+    const lastPage = adminPage.getByRole('link', { name: 'Last page', exact: true });
+    // Activate the real keyboard UI while retaining all saved-row assertions.
+    if (await lastPage.isVisible()) await lastPage.press('Enter');
+    const row = adminPage.getByRole('row').filter({ hasText: task.title }).filter({ hasText: '1.25' });
+    await expect(row).toContainText('2020-01-03');
+    await adminPage.reload();
+    await expect(row).toContainText('1.25');
+    await expect(row).toContainText(`UI time ${scenario.namespace}`);
+  } finally { await context.close(); }
 });
