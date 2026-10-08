@@ -12,8 +12,6 @@ dependencies:
     - field.field.node.task.field_status
     - node.type.task
   module:
-    - number
-    - options
     - text
     - user
 id: node.task.teaser
@@ -21,48 +19,29 @@ targetEntityType: node
 bundle: task
 mode: teaser
 content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: -20
+    region: content
   field_assignee:
     type: entity_reference_label
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    weight: 2
+    weight: 1
     region: content
   field_body:
     type: text_default
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 1
-    region: content
-  field_estimate:
-    type: number_decimal
-    label: above
-    settings:
-      thousand_separator: ''
-      decimal_separator: '.'
-      scale: 2
-      prefix: ''
-      suffix: ''
-    third_party_settings: {  }
-    weight: 4
-    region: content
-  field_project:
-    type: entity_reference_label
-    label: above
-    settings:
-      link: true
-    third_party_settings: {  }
-    weight: 3
-    region: content
-  field_status:
-    type: list_default
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 5
+    weight: 0
     region: content
 hidden:
   field_attachments: true
+  field_estimate: true
+  field_project: true
+  field_status: true
   links: true
