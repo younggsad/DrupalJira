@@ -139,6 +139,34 @@ class TaskStatService {
     /** @var NodeInterface[] $tasks */
     $tasks = $task_storage->loadMultiple($task_ids);
 
+    // Filter once, then load all logs for the accessible tasks in one batch.
+    foreach ($tasks as $id => $task) {
+      $task_access = $this->getTaskAccess($task);
+      $cache?->addCacheableDependency($task_access);
+      if (!$task_access->isAllowed()) {
+        unset($tasks[$id]);
+      }
+    }
+    $logged_by_task = [];
+    if ($tasks) {
+      $time_log_storage = $this->entityTypeManager->getStorage('time_log');
+      $time_log_ids = $time_log_storage->getQuery()
+        ->accessCheck(TRUE)
+        ->condition('task', array_keys($tasks), 'IN')
+        ->execute();
+      /** @var \Drupal\drupaljira_timelog\TimeLogInterface[] $time_logs */
+      $time_logs = $time_log_storage->loadMultiple($time_log_ids);
+      foreach ($time_logs as $time_log) {
+        $log_access = $time_log->access('view', $this->account, TRUE);
+        $cache?->addCacheableDependency($log_access);
+        if ($log_access->isAllowed()) {
+          $task_id = $time_log->get('task')->target_id;
+          $logged_by_task[$task_id] = ($logged_by_task[$task_id] ?? 0.0)
+            + (float) $time_log->get('hours')->value;
+        }
+      }
+    }
+
     $task_count = 0;
     $done_count = 0;
     $total_estimate = 0.0;
@@ -146,11 +174,6 @@ class TaskStatService {
     $over_estimate_count = 0;
 
     foreach ($tasks as $task) {
-      $task_access = $this->getTaskAccess($task);
-      $cache?->addCacheableDependency($task_access);
-      if (!$task_access->isAllowed()) {
-        continue;
-      }
       $task_count++;
       if ($task->get('field_status')->value === 'done') {
         $done_count++;
@@ -159,7 +182,7 @@ class TaskStatService {
       $estimate = (float) $task->get('field_estimate')->value;
       $total_estimate += $estimate;
 
-      $logged_hours = $this->getLoggedHours($task, $cache);
+      $logged_hours = $logged_by_task[$task->id()] ?? 0.0;
       $total_logged += $logged_hours;
 
       if ($estimate - $logged_hours < 0) {
