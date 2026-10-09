@@ -19,7 +19,7 @@ div.messages {
 div.messages--status {
   background-color: var(--tb-success-light);
   border-color: rgba(3, 152, 85, 0.15);
-  color: var(--tb-success);
+  color: #027a48;
 }
 
 div.messages--error {

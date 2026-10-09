@@ -27,16 +27,20 @@ final class SprintAccessCheck {
    */
   public function access(NodeInterface $node, AccountInterface $account): AccessResult {
     if ($node->bundle() !== 'project') {
-      return AccessResult::forbidden();
+      return AccessResult::forbidden()->addCacheableDependency($node);
     }
 
-    if (!$node->access('view', $account)) {
-      return AccessResult::forbidden();
+    $view_access = $node->access('view', $account, TRUE);
+    if (!$view_access->isAllowed()) {
+      return AccessResult::forbidden()
+        ->addCacheableDependency($view_access)
+        ->addCacheableDependency($node);
     }
 
     $is_scrum = $node->get('field_project_type')->value === 'scrum';
 
     return AccessResult::allowedIf($is_scrum)
+      ->addCacheableDependency($view_access)
       ->addCacheableDependency($node);
   }
 
