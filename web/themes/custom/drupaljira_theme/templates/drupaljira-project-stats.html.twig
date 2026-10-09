@@ -1,0 +1,8 @@
+<section class="project-statistics" aria-label="{{ 'Project statistics'|t }}">
+  <p class="project-statistics__project"><strong>{{ project_name }}</strong></p>
+  <ul class="project-statistics__list">
+    {% for metric in [total_estimate, total_logged, remaining_hours, tasks_summary, over_estimate_count] %}
+      {% include '@drupaljira_theme/components/metric-card.html.twig' with {text: metric, icon: loop.index == 4 ? 'check' : null} %}
+    {% endfor %}
+  </ul>
+</section>

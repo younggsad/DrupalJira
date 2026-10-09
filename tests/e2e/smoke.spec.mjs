@@ -43,9 +43,12 @@ test.describe('manager persona', () => {
   });
 });
 
-test('task displays deterministic time summary', async ({ page, scenario }) => {
-  await page.goto(`/node/${scenario.tasks.backlog.id}`);
-  await expect(page.getByRole('article').getByText('8 ч. (2 ч. written off, 6 ч. remaining)', { exact: true })).toBeVisible();
+test.describe('authorized time summary', () => {
+  test.use({ persona: 'regular' });
+  test('task displays deterministic time summary', async ({ page, scenario }) => {
+    await page.goto(`/node/${scenario.tasks.backlog.id}`);
+    await expect(page.getByRole('article').getByText('8 ч. (2 ч. written off, 6 ч. remaining)', { exact: true })).toBeVisible();
+  });
 });
 
 test('sprints are available only for Scrum projects', async ({ page, scenario }) => {

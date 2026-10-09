@@ -4,7 +4,7 @@
  * Theme override for a project node.
  */
 #}
-<article{{ attributes.addClass('project-node-card') }}>
+<article{{ attributes.addClass('node', 'node--type-project', 'project-node-card') }}>
   {{ title_prefix }}
   {% if not page %}
     <h2{{ title_attributes.addClass('node__title') }}>

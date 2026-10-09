@@ -1,0 +1,6 @@
+features:
+  favicon: true
+favicon:
+  use_default: false
+  path: themes/custom/drupaljira_theme/assets/figma/jira-logo.svg
+  mimetype: image/svg+xml

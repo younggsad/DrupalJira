@@ -1,0 +1,25 @@
+.task-node-card:not(.task-card) .node__content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tb-space-20);
+}
+
+.task-node-card:not(.task-card) .field--name-field-body, .task-node-card:not(.task-card) .field--name-field-attachments {
+  grid-column: 1 / -1;
+}
+
+.task-node-card .field__item {
+  overflow-wrap: anywhere;
+}
+
+.task-node-card img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .task-node-card:not(.task-card) .node__content {
+    grid-template-columns: 1fr;
+  }
+
+}

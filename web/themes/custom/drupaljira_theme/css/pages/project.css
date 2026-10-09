@@ -1,0 +1,8 @@
+.project-node-card .node__content {
+  display: grid;
+  gap: var(--tb-space-20);
+}
+
+.project-node-card .field--name-field-body {
+  max-width: 75ch;
+}

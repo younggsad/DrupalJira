@@ -108,7 +108,16 @@ The module also provides:
 * Time summaries
 * Project statistics
 * Cache invalidation
-* Debug routes for Entity API operations
+* Owner-scoped editing/deletion and referenced Task/Project access checks
+
+Authenticated users can create time logs, view logs/statistics for accessible
+Tasks and Projects, and edit/delete their own logs. `administer time_log` is
+reserved for TimeLog administrators. The administrative collection remains
+restricted. Demonstration CRUD/list/sum HTTP endpoints are not available.
+
+Existing installations apply `drupaljira_timelog_update_10002` through
+`ddev drush updatedb`, then rebuild caches. This updates only the authenticated
+role's TimeLog permissions and does not require a full configuration import.
 
 ### Project Statistics
 
@@ -423,7 +432,7 @@ Provides:
 * Event subscribers
 * Cache invalidation
 * Migration functionality
-* Entity API demonstrations
+* Owner-scoped TimeLog authorization
 
 ---
 

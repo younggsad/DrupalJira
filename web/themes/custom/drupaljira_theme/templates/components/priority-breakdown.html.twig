@@ -1,0 +1,8 @@
+{# Integration boundary only: no provider exists in the current backend.
+   A future provider must supply an access-checked, cacheable chart render array.
+   This component intentionally has no sample bars, counts, or fallback values. #}
+{% include '@drupaljira_theme/components/data-panel.html.twig' with {
+  title: 'Priority breakdown'|t,
+  content: chart|default(null),
+  empty_message: 'No priority information available.'|t
+} only %}

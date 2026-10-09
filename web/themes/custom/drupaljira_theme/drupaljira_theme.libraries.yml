@@ -11,14 +11,18 @@ global:
 
       css/components/buttons.css: {}
       css/components/forms.css: {}
+      css/components/form-details.css: {}
       css/components/messages.css: {}
       css/components/tabs.css: {}
       css/components/cards.css: {}
+      css/components/data-panel.css: {}
       css/components/tables.css: {}
       css/components/modal.css: {}
+      css/components/media-library.css: {}
       css/components/paragraphs.css: {}
 
       css/pages/project.css: {}
+      css/pages/account.css: {}
       css/pages/task.css: {}
       css/pages/statistics.css: {}
       css/pages/sprints.css: {}
@@ -26,9 +30,13 @@ global:
       css/integrations/frontend-editing.css: {}
   js:
     js/global.js: {}
+    js/editing-panel.js: {}
+    js/dialog.js: {}
   dependencies:
     - core/drupal
     - core/once
+    - core/drupal.ajax
+    - core/jquery
 
 task-board:
   css:
@@ -42,3 +50,9 @@ task-board:
     - core/drupal
     - core/once
     - core/drupal.dialog
+    - core/jquery
+
+projects:
+  css:
+    theme:
+      css/pages/projects.css: {}

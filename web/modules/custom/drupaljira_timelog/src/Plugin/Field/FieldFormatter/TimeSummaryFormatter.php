@@ -3,6 +3,7 @@
 namespace Drupal\drupaljira_timelog\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Attribute\FieldFormatter;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
@@ -84,11 +85,17 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
     }
 
     $task = $entity;
-    $elements = [];
+    $access = $this->taskStatService->getTaskAccess($task);
+    $cache = CacheableMetadata::createFromObject($access);
+    $elements = ['#access' => $access];
+    if (!$access->isAllowed()) {
+      $cache->applyTo($elements);
+      return $elements;
+    }
 
     foreach ($items as $delta => $item) {
       $estimate = (float) ($item->getValue()['value'] ?? 0);
-      $remaining = $this->taskStatService->getRemainingEstimate($task);
+      $remaining = $this->taskStatService->getRemainingEstimate($task, $cache);
       $logged = $estimate - $remaining;
 
       $elements[$delta] = [
@@ -100,6 +107,7 @@ final class TimeSummaryFormatter extends FormatterBase implements ContainerFacto
       ];
     }
 
+    $cache->applyTo($elements);
     return $elements;
   }
 

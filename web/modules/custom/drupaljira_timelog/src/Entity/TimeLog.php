@@ -7,7 +7,6 @@ namespace Drupal\drupaljira_timelog\Entity;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Attribute\ContentEntityType;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -16,6 +15,7 @@ use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\drupaljira_timelog\Form\TimeLogForm;
+use Drupal\drupaljira_timelog\Form\TimeLogDeleteForm;
 use Drupal\drupaljira_timelog\TimeLogAccessControlHandler;
 use Drupal\drupaljira_timelog\TimeLogInterface;
 use Drupal\drupaljira_timelog\TimeLogListBuilder;
@@ -42,9 +42,10 @@ use Drupal\views\EntityViewsData;
     'views_data' => EntityViewsData::class,
     'access' => TimeLogAccessControlHandler::class,
     'form' => [
+      'default' => TimeLogForm::class,
       'add' => TimeLogForm::class,
       'edit' => TimeLogForm::class,
-      'delete' => ContentEntityDeleteForm::class,
+      'delete' => TimeLogDeleteForm::class,
       'delete-multiple-confirm' => DeleteMultipleForm::class,
     ],
     'route_provider' => [
@@ -92,11 +93,34 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
   ): void {
     parent::postSave($storage, $update);
 
-    $task = $this->get('task')->entity;
-
-    if ($task instanceof NodeInterface) {
-      Cache::invalidateTags($task->getCacheTags());
+    $tags = $this->getStatisticsCacheTags();
+    if ($update && ($original = $this->getOriginal())) {
+      $tags = Cache::mergeTags($tags, $original->getStatisticsCacheTags());
     }
+    Cache::invalidateTags($tags);
+  }
+
+  /**
+   * Returns cache tags for the referenced task and its project statistics.
+   */
+  protected function getStatisticsCacheTags(): array {
+    $task_id = $this->get('task')->target_id;
+    if (!$task_id) {
+      return [];
+    }
+
+    $tags = ['node:' . $task_id];
+    $task = $this->get('task')->entity;
+    if ($task instanceof NodeInterface && $task->hasField('field_project')) {
+      $project_id = $task->get('field_project')->target_id;
+      if ($project_id) {
+        $tags = Cache::mergeTags($tags, [
+          'node:' . $project_id,
+          'drupaljira_project_stats:' . $project_id,
+        ]);
+      }
+    }
+    return $tags;
   }
 
   /**
@@ -106,17 +130,13 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
     EntityStorageInterface $storage,
     array $entities,
   ): void {
+    $tags = [];
     foreach ($entities as $entity) {
-      if (!$entity instanceof self) {
-        continue;
-      }
-
-      $task = $entity->get('task')->entity;
-
-      if ($task instanceof NodeInterface) {
-        Cache::invalidateTags($task->getCacheTags());
+      if ($entity instanceof self) {
+        $tags = Cache::mergeTags($tags, $entity->getStatisticsCacheTags());
       }
     }
+    Cache::invalidateTags($tags);
 
     parent::preDelete($storage, $entities);
   }

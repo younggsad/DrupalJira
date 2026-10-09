@@ -1,0 +1,23 @@
+<header class="drupaljira-header">
+  <div class="drupaljira-header__container">
+    <a href="{{ path('<front>') }}" rel="home" class="drupaljira-header__logo-link">
+      <span class="drupaljira-header__logo-slot"><img class="drupaljira-header__logo" src="/{{ directory }}/assets/figma/jira-logo.svg" alt="" width="128" height="128"></span>
+      <span>{{ 'DrupalJira'|t }}</span>
+    </a>
+    {% if jira_navigation %}
+      <nav class="drupaljira-header__nav" aria-label="{{ 'Main navigation'|t }}">
+        <ul class="drupaljira-header__menu">
+          {% for link in jira_navigation %}<li>{{ link }}</li>{% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+    <div class="drupaljira-header__actions">
+      {% for link in jira_create %}{{ link }}{% endfor %}
+      {% if logged_in %}
+        <a href="{{ path('user.page') }}">{{ 'Account'|t }}</a>
+      {% else %}
+        <a href="{{ path('user.login', {}, {query: {destination: path('drupaljira_board.projects')}}) }}">{{ 'Sign in'|t }}</a>
+      {% endif %}
+    </div>
+  </div>
+</header>

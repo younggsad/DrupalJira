@@ -1,75 +1,37 @@
-.card,
-.node,
-.task-node-card,
-.project-node-card {
+/* Surface geometry from Figma Summary Card 14:6572. */
+.card, .task-node-card, .project-node-card {
   background: var(--tb-card-bg);
   border: 1px solid var(--tb-border);
-  border-radius: var(--tb-radius-column);
-  padding: 32px 36px;
-  margin-bottom: 32px;
-  box-shadow: var(--tb-shadow-column);
-  transition: box-shadow 0.2s ease;
+  border-radius: var(--tb-radius-card);
+  padding: var(--tb-space-20);
+  margin-bottom: var(--tb-space-24);
+  box-shadow: var(--tb-shadow-card);
 }
 
 .node__title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--tb-border-subtle);
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: var(--tb-space-20);
+  overflow-wrap: anywhere;
 }
 
 .node .field {
-  margin-bottom: 20px;
+  margin-bottom: var(--tb-space-16);
 }
 
 .node .field__label {
-  font-weight: 700;
-  color: var(--tb-muted-light);
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
+  font-weight: 500;
+  color: var(--tb-muted);
+  margin-bottom: var(--tb-space-6);
 }
 
-/* Project Type Badges */
-.field--name-field-project-type .field__item {
+.field--name-field-project-type .field__item, .field--name-field-status .field__item {
   display: inline-block;
-  padding: 5px 16px;
-  border-radius: var(--tb-radius-pill);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background-color: var(--tb-secondary-light);
-  color: var(--tb-secondary);
-  border: 1px solid rgba(124, 92, 255, 0.15);
-}
-
-/* Status Badges */
-.field--name-field-status .field__item {
-  display: inline-block;
-  padding: 5px 16px;
-  border-radius: var(--tb-radius-pill);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background-color: var(--tb-primary-light);
+  padding: var(--tb-space-4) var(--tb-space-8);
+  border-radius: var(--tb-radius-button);
+  font-size: 12px;
+  font-weight: 600;
+  background: #e2f6ff;
   color: var(--tb-primary);
-  border: 1px solid rgba(10, 101, 228, 0.15);
-}
-
-@media (max-width: 768px) {
-  .card,
-  .node,
-  .task-node-card,
-  .project-node-card {
-    padding: 24px 24px;
-  }
-
-  .node__title {
-    font-size: 24px;
-  }
 }

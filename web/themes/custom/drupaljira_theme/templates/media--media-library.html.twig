@@ -1,0 +1,11 @@
+<article{{ attributes.addClass('media-preview') }}>
+  {{ title_prefix }}
+  {% if content %}
+    <div{{ preview_attributes.addClass('js-media-library-item-preview', 'media-preview__image') }}>
+      {{ content|without('name') }}
+    </div>
+    {% if not status %}{{ 'unpublished'|t }}{% endif %}
+    <div{{ metadata_attributes.addClass('media-preview__name') }}>{{ name }}</div>
+  {% endif %}
+  {{ title_suffix }}
+</article>

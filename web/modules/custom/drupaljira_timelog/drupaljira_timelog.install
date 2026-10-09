@@ -5,6 +5,9 @@
  * Update hooks for the DrupalJira TimeLog module.
  */
 
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\user\Entity\Role;
+
 /**
  * Initialize Project type and Task moderation state for existing entities.
  */
@@ -138,5 +141,38 @@ function drupaljira_timelog_update_10001(&$sandbox) {
         '@tasks_updated' => $sandbox['tasks_updated'],
       ],
     );
+  }
+}
+
+/**
+ * Replace authenticated TimeLog administration with scoped permissions.
+ */
+function drupaljira_timelog_update_10002(): void {
+  $role = Role::load('authenticated');
+  if ($role) {
+    $role->revokePermission('administer time_log');
+    foreach (['create time_log', 'view time_log', 'edit time_log', 'delete time_log'] as $permission) {
+      $role->grantPermission($permission);
+    }
+    $role->save();
+  }
+}
+
+/**
+ * Restore the installed SQL schema for the Task estimate field.
+ */
+function drupaljira_timelog_update_10003(): void {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = FieldStorageConfig::load('node.field_estimate');
+  if (!$definition) {
+    return;
+  }
+
+  // The decimal definition and columns already agree, but older installations
+  // can lack the SQL schema metadata. Let Drupal reconcile this field only;
+  // its storage handler rejects unsupported column changes on populated fields.
+  $changes = $manager->getChangeList();
+  if (($changes['node']['field_storage_definitions']['field_estimate'] ?? NULL) === $manager::DEFINITION_UPDATED) {
+    $manager->updateFieldStorageDefinition($definition);
   }
 }

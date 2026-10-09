@@ -1,0 +1,10 @@
+{% if primary %}
+  <nav aria-label="{{ 'Primary tabs'|t }}">
+    <ul class="tabs">{{ primary }}</ul>
+  </nav>
+{% endif %}
+{% if secondary %}
+  <nav aria-label="{{ 'Secondary tabs'|t }}">
+    <ul class="tabs tabs--secondary">{{ secondary }}</ul>
+  </nav>
+{% endif %}

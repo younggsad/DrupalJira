@@ -1,0 +1,70 @@
+.projects-page__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tb-space-16);
+  margin-bottom: var(--tb-space-24);
+}
+
+.projects-page__intro p {
+  flex: 1 1 30ch;
+  margin: 0;
+  color: var(--tb-text-secondary);
+}
+
+.projects-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: var(--tb-space-20);
+}
+
+.project-summary,
+.projects-page__tasks,
+.application-empty {
+  padding: var(--tb-space-20);
+  border: 1px solid var(--tb-border);
+  border-radius: var(--tb-radius-card);
+  background: var(--tb-card-bg);
+  box-shadow: var(--tb-shadow-card);
+}
+
+.project-summary__title,
+.projects-page__tasks h2,
+.application-empty h2 {
+  margin-bottom: var(--tb-space-16);
+  font-size: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.project-summary__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tb-space-16);
+  margin-top: var(--tb-space-20);
+}
+
+.projects-page__tasks {
+  margin-top: var(--tb-space-30);
+}
+
+.projects-page__task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.projects-page__task-list li + li {
+  border-top: 1px solid var(--tb-border);
+}
+
+.projects-page__task-list a {
+  display: block;
+  padding-block: var(--tb-space-12);
+  overflow-wrap: anywhere;
+}
+
+.application-empty p,
+.application-empty__message {
+  color: var(--tb-muted);
+}
