@@ -22,7 +22,7 @@
   --tb-card-bg: #ffffff;
   --tb-border: #ececec;
   --tb-border-subtle: #ececec;
-  --tb-primary: #0a65e4;
+  --tb-primary: #095bcf;
   --tb-primary-hover: #0852bc;
   --tb-primary-light: #cee0fa;
   --tb-secondary: #433f5e;
@@ -34,7 +34,7 @@
   --tb-success-light: #ecfdf3;
   --tb-warning: #f59e0b;
   --tb-warning-light: #fffbeb;
-  --tb-danger: #d92d20;
+  --tb-danger: #cf2b1e;
   --tb-danger-light: #fef2f2;
   --tb-radius-column: 8px;
   --tb-radius-card: 8px;
