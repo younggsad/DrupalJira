@@ -19,11 +19,6 @@ targetEntityType: node
 bundle: task
 mode: teaser
 content:
-  content_moderation_control:
-    settings: {  }
-    third_party_settings: {  }
-    weight: -20
-    region: content
   field_assignee:
     type: entity_reference_label
     label: above
