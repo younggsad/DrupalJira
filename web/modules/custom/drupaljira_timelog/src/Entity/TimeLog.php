@@ -42,6 +42,7 @@ use Drupal\views\EntityViewsData;
     'views_data' => EntityViewsData::class,
     'access' => TimeLogAccessControlHandler::class,
     'form' => [
+      'default' => TimeLogForm::class,
       'add' => TimeLogForm::class,
       'edit' => TimeLogForm::class,
       'delete' => TimeLogDeleteForm::class,
@@ -92,11 +93,34 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
   ): void {
     parent::postSave($storage, $update);
 
-    $task = $this->get('task')->entity;
-
-    if ($task instanceof NodeInterface) {
-      Cache::invalidateTags($task->getCacheTags());
+    $tags = $this->getStatisticsCacheTags();
+    if ($update && ($original = $this->getOriginal())) {
+      $tags = Cache::mergeTags($tags, $original->getStatisticsCacheTags());
     }
+    Cache::invalidateTags($tags);
+  }
+
+  /**
+   * Returns cache tags for the referenced task and its project statistics.
+   */
+  protected function getStatisticsCacheTags(): array {
+    $task_id = $this->get('task')->target_id;
+    if (!$task_id) {
+      return [];
+    }
+
+    $tags = ['node:' . $task_id];
+    $task = $this->get('task')->entity;
+    if ($task instanceof NodeInterface && $task->hasField('field_project')) {
+      $project_id = $task->get('field_project')->target_id;
+      if ($project_id) {
+        $tags = Cache::mergeTags($tags, [
+          'node:' . $project_id,
+          'drupaljira_project_stats:' . $project_id,
+        ]);
+      }
+    }
+    return $tags;
   }
 
   /**
@@ -106,17 +130,13 @@ class TimeLog extends ContentEntityBase implements TimeLogInterface {
     EntityStorageInterface $storage,
     array $entities,
   ): void {
+    $tags = [];
     foreach ($entities as $entity) {
-      if (!$entity instanceof self) {
-        continue;
-      }
-
-      $task = $entity->get('task')->entity;
-
-      if ($task instanceof NodeInterface) {
-        Cache::invalidateTags($task->getCacheTags());
+      if ($entity instanceof self) {
+        $tags = Cache::mergeTags($tags, $entity->getStatisticsCacheTags());
       }
     }
+    Cache::invalidateTags($tags);
 
     parent::preDelete($storage, $entities);
   }
