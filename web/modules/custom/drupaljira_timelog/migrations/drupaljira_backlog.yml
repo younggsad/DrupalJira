@@ -12,7 +12,7 @@ source:
 process:
   title: title
 
-  field_status:
+  moderation_state:
     plugin: static_map
     source: status
     map:
@@ -20,6 +20,13 @@ process:
       working: in_progress
       qa: review
       completed: done
+
+  field_status: "@moderation_state"
+
+  # All four imported board states are published in task_workflow.
+  status:
+    plugin: default_value
+    default_value: 1
 
   field_estimate: estimate
 

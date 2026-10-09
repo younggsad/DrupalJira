@@ -23,6 +23,12 @@ settings:
     -
       value: done
       label: Done
+    -
+      value: draft
+      label: Draft
+    -
+      value: published
+      label: Published
   allowed_values_function: ''
 module: options
 locked: false
